@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 import { PageProgress } from "@/components/ui/page-progress";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,
@@ -27,7 +28,9 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <PageProgress />
+          <Suspense fallback={null}>
+            <PageProgress />
+          </Suspense>
           {children}
           <Toaster />
         </ThemeProvider>
