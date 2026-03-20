@@ -33,14 +33,14 @@ export default function SettingsPage() {
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('*')
-                    .eq('id', authUser.id)
+                    .eq('userid', authUser.id)
                     .single();
 
                 setUser({
                     id: authUser.id,
                     email: authUser.email || "",
-                    full_name: profile?.full_name || "",
-                    username: profile?.username || "",
+                    full_name: profile?.full_name || authUser.user_metadata?.full_name || "",
+                    username: profile?.username || authUser.user_metadata?.username || "",
                 });
             }
             setLoading(false);
@@ -57,12 +57,14 @@ export default function SettingsPage() {
 
         const { error } = await supabase
             .from('profiles')
-            .update({
+            .upsert({
+                userid: user.id,
+                email: user.email,
                 full_name: user.full_name,
                 username: user.username,
                 updated_at: new Date().toISOString(),
-            })
-            .eq('id', user.id);
+                password: '*managed by supabase auth*',
+            }, { onConflict: 'userid' });
 
         if (error) {
             toast({
@@ -153,15 +155,15 @@ export default function SettingsPage() {
                                         )}
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <Label className="text-[10px] font-mono uppercase tracking-widest text-gray-500 font-bold ml-1">Email Address</Label>
-                                        <span className="text-[9px] font-mono text-secondary bg-secondary/10 px-2 py-0.5 rounded border border-secondary/20">SECURED</span>
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-[10px] font-mono uppercase tracking-widest text-gray-500 font-bold ml-1">Email Address</Label>
+                                            <span className="text-[9px] font-mono text-secondary bg-secondary/10 px-2 py-0.5 rounded border border-secondary/20">SECURED</span>
+                                        </div>
+                                        <div className="h-12 bg-white/[0.01] border border-white/5 flex items-center px-4 rounded-xl text-gray-400 font-mono text-xs">
+                                            {user?.email}
+                                        </div>
                                     </div>
-                                    <div className="h-12 bg-white/[0.01] border border-white/5 flex items-center px-4 rounded-xl text-gray-600 font-mono italic text-sm">
-                                        {user?.email}
-                                    </div>
-                                </div>
 
                                 {isEditing && (
                                     <div className="flex justify-end gap-3 pt-2">

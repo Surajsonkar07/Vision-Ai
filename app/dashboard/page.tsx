@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { CopyPlus, Activity, Target, Video } from "lucide-react";
+import { CopyPlus, Activity, Target, Video, LogOut } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { LineChart, Line, ResponsiveContainer, Tooltip, YAxis, XAxis, CartesianGrid } from 'recharts';
 import { createClient } from "@/lib/supabase/client";
+import { TiltWrapper } from "@/components/ui/tilt-wrapper";
 
 export default function DashboardPage() {
     const [stats, setStats] = useState({
@@ -18,6 +21,14 @@ export default function DashboardPage() {
     });
     const [chartData, setChartData] = useState<{ time: string; detections: number }[]>([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
+    const supabase = createClient();
+
+    const handleSignOut = async () => {
+        await supabase.auth.signOut();
+        router.push("/login");
+        router.refresh();
+    };
 
     useEffect(() => {
         const supabase = createClient();
@@ -70,13 +81,15 @@ export default function DashboardPage() {
                     <p className="text-gray-500 text-sm font-mono mt-1 uppercase tracking-widest leading-none">Neural Stream Matrix v8.0.4</p>
                 </div>
                 <div className="flex gap-4 items-center">
-                    <div className="flex items-center gap-2 group cursor-pointer glass px-3 py-1.5 rounded-full border-white/5 hover:border-secondary/30 transition-all">
-                        <div className="flex h-2 w-2 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
-                        </div>
-                        <span className="text-secondary font-mono text-[10px] tracking-widest font-bold uppercase">LIVE UPLINK</span>
-                    </div>
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={handleSignOut}
+                        className="text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 rounded-full h-8 px-4 text-xs font-mono tracking-widest uppercase transition-all"
+                    >
+                        Sign Out
+                        <LogOut className="w-3 h-3 ml-2" />
+                    </Button>
                 </div>
             </motion.div>
 
@@ -91,24 +104,25 @@ export default function DashboardPage() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.1, duration: 0.5 }}
-                        whileHover={{ y: -5 }}
                     >
-                        <Card className="glass-card border-white/5 hover:border-primary/30 transition-all group overflow-hidden relative">
-                            {/* Removed card hover glow circle */}
-                            <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                <CardTitle className="text-[10px] uppercase tracking-widest font-bold text-gray-500">{stat.title}</CardTitle>
-                                <stat.icon className={`h-4 w-4 ${stat.color} group-hover:scale-125 transition-transform`} />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-4xl font-black font-mono text-white tracking-widest leading-none mb-2">
-                                    {loading ? '---' : stat.value}
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] font-mono text-secondary bg-secondary/10 px-1.5 py-0.5 rounded">{stat.trend}</span>
-                                    <span className="text-[10px] text-gray-600 font-mono uppercase tracking-tighter">vs last session</span>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <TiltWrapper className="h-full">
+                            <Card className="glass-card border-white/5 hover:border-primary/30 transition-all group overflow-hidden relative h-full">
+                                {/* Removed card hover glow circle */}
+                                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                    <CardTitle className="text-[10px] uppercase tracking-widest font-bold text-gray-500">{stat.title}</CardTitle>
+                                    <stat.icon className={`h-4 w-4 ${stat.color} group-hover:scale-125 transition-transform`} />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-4xl font-black font-mono text-white tracking-widest leading-none mb-2">
+                                        {loading ? '---' : stat.value}
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-[10px] font-mono text-secondary bg-secondary/10 px-1.5 py-0.5 rounded">{stat.trend}</span>
+                                        <span className="text-[10px] text-gray-600 font-mono uppercase tracking-tighter">vs last session</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TiltWrapper>
                     </motion.div>
                 ))}
             </div>
@@ -168,51 +182,53 @@ export default function DashboardPage() {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="lg:col-span-3"
+                    className="lg:col-span-3 h-full"
                 >
-                    <Card className="glass-card border-white/5 overflow-hidden relative h-full group">
-                        <CardHeader>
-                            <CardTitle className="flex justify-between items-center text-lg font-bold tracking-tight uppercase">
-                                <span>Real-time Flux</span>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/50 animate-pulse">ENCRYPTED</span>
-                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/20 text-secondary border border-secondary/50">4K@60FPS</span>
+                    <TiltWrapper className="h-full">
+                        <Card className="glass-card border-white/5 overflow-hidden relative h-full group">
+                            <CardHeader>
+                                <CardTitle className="flex justify-between items-center text-lg font-bold tracking-tight uppercase">
+                                    <span>Real-time Flux</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/50 animate-pulse">ENCRYPTED</span>
+                                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary/20 text-secondary border border-secondary/50">4K@60FPS</span>
+                                    </div>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <div className="h-[350px] w-full bg-black/80 relative flex items-center justify-center overflow-hidden">
+                                    <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none"></div>
+                                    <motion.div
+                                        className="absolute top-0 left-0 w-full h-[40%] bg-gradient-to-b from-transparent via-primary/20 to-transparent z-10 opacity-50"
+                                        animate={{ top: ["-40%", "100%", "-40%"] }}
+                                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                    />
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-20">
+                                        <div className="relative">
+                                            <div className="absolute inset-0 bg-primary/20 blur-[30px] rounded-full animate-pulse"></div>
+                                            <Video className="w-12 h-12 text-white/40 relative z-10" />
+                                        </div>
+                                        <div className="flex flex-col items-center gap-1">
+                                            <div className="text-[10px] font-mono text-primary animate-pulse tracking-widest uppercase font-bold text-center">Neural Stream Wait...</div>
+                                            <div className="text-[9px] font-mono text-gray-600 uppercase tracking-tighter italic">SIG_STRENGTH: 98.4%</div>
+                                        </div>
+                                        <div className="mt-8 grid grid-cols-2 gap-3 opacity-60 w-3/4">
+                                            {[1, 2, 3, 4].map(idx => (
+                                                <div key={idx} className="border border-white/5 p-2 rounded-lg text-xs bg-white/5 flex items-center gap-2 group-hover:border-primary/20 transition-all cursor-pointer">
+                                                    <div className="w-1 h-1 rounded-full bg-secondary"></div>
+                                                    <span className="text-[9px] font-mono text-gray-400 leading-none">NODE_0{idx}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-primary/30"></div>
+                                    <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-primary/30"></div>
+                                    <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-primary/30"></div>
+                                    <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-primary/30"></div>
                                 </div>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <div className="h-[350px] w-full bg-black/80 relative flex items-center justify-center overflow-hidden">
-                                <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none"></div>
-                                <motion.div
-                                    className="absolute top-0 left-0 w-full h-[40%] bg-gradient-to-b from-transparent via-primary/20 to-transparent z-10 opacity-50"
-                                    animate={{ top: ["-40%", "100%", "-40%"] }}
-                                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                                />
-                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-20">
-                                    <div className="relative">
-                                        <div className="absolute inset-0 bg-primary/20 blur-[30px] rounded-full animate-pulse"></div>
-                                        <Video className="w-12 h-12 text-white/40 relative z-10" />
-                                    </div>
-                                    <div className="flex flex-col items-center gap-1">
-                                        <div className="text-[10px] font-mono text-primary animate-pulse tracking-widest uppercase font-bold text-center">Neural Stream Wait...</div>
-                                        <div className="text-[9px] font-mono text-gray-600 uppercase tracking-tighter italic">SIG_STRENGTH: 98.4%</div>
-                                    </div>
-                                    <div className="mt-8 grid grid-cols-2 gap-3 opacity-60 w-3/4">
-                                        {[1, 2, 3, 4].map(idx => (
-                                            <div key={idx} className="border border-white/5 p-2 rounded-lg text-xs bg-white/5 flex items-center gap-2 group-hover:border-primary/20 transition-all cursor-pointer">
-                                                <div className="w-1 h-1 rounded-full bg-secondary"></div>
-                                                <span className="text-[9px] font-mono text-gray-400 leading-none">NODE_0{idx}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-primary/30"></div>
-                                <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-primary/30"></div>
-                                <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-primary/30"></div>
-                                <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-primary/30"></div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    </TiltWrapper>
                 </motion.div>
             </div>
 

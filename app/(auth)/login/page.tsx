@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, ArrowRight, Eye, EyeOff, ScanLine } from "lucide-react";
 import Link from "next/link";
+import Spline from '@splinetool/react-spline';
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -43,8 +44,11 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#040406] flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-[#040406] flex items-center justify-center p-4 relative overflow-x-hidden">
             {/* Background Effects */}
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen">
+                <Spline scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode" />
+            </div>
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
                 <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-secondary/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>

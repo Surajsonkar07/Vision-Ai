@@ -10,6 +10,8 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip,
     ResponsiveContainer, BarChart, Bar, Cell
 } from 'recharts';
+import { Player } from "@remotion/player";
+import { NetworkScene } from "@/components/remotion/NetworkScene";
 
 export default function AnalyticsPage() {
     const [stats, setStats] = useState<{ total: number; avgAccuracy: number; avgLatency: string } | null>(null);
@@ -70,6 +72,30 @@ export default function AnalyticsPage() {
                     <p className="text-gray-500 text-sm font-mono mt-1 uppercase tracking-widest">Real-time performance metrics & insights</p>
                 </div>
             </motion.div>
+
+            {/* Remotion Visualization */}
+            <Card className="glass-card border-white/5 overflow-hidden p-0 relative h-[300px]">
+                <div className="absolute inset-0 bg-black/80 flex items-center justify-center pointer-events-none">
+                    <Player
+                        component={NetworkScene}
+                        durationInFrames={300}
+                        compositionWidth={1000}
+                        compositionHeight={300}
+                        fps={30}
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                        }}
+                        autoPlay
+                        loop
+                        controls={false}
+                    />
+                </div>
+                <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-black/50 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-md">
+                    <div className="w-2 h-2 rounded-full bg-secondary animate-pulse shadow-[0_0_8px_#00ffff]"></div>
+                    <span className="text-[10px] font-mono font-bold text-white tracking-widest uppercase text-shadow-glow">Global Mesh Topology</span>
+                </div>
+            </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card className="glass-card border-white/5 p-6 space-y-2 relative overflow-hidden group">

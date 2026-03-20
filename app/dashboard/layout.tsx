@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { TiltWrapper } from "@/components/ui/tilt-wrapper";
 
 const routes = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -62,22 +63,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
                     return (
                         <Link key={route.path} href={route.path} className="block">
-                            <motion.div
-                                whileHover={{ x: 5 }}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative ${isActive
-                                    ? "bg-primary/20 text-primary border border-primary/30"
-                                    : "text-muted-foreground hover:bg-white/5 hover:text-white"
-                                    }`}
-                            >
-                                <Icon className="w-5 h-5" />
-                                <span className="font-medium text-sm">{route.name}</span>
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="active-nav"
-                                        className="absolute left-0 w-1 h-8 bg-primary rounded-r-md"
-                                    />
-                                )}
-                            </motion.div>
+                            <TiltWrapper maxTilt={5} scale={1.03}>
+                                <div
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative ${isActive
+                                        ? "bg-primary/20 text-primary border border-primary/30"
+                                        : "text-muted-foreground hover:bg-white/5 hover:text-white"
+                                        }`}
+                                >
+                                    <Icon className="w-5 h-5" />
+                                    <span className="font-medium text-sm">{route.name}</span>
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="active-nav"
+                                            className="absolute left-0 w-1 h-8 bg-primary rounded-r-md"
+                                        />
+                                    )}
+                                </div>
+                            </TiltWrapper>
                         </Link>
                     );
                 })}
@@ -96,7 +98,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
 
     return (
-        <div className="flex h-screen overflow-hidden bg-background text-foreground flex-col lg:flex-row">
+        <div className="flex min-h-screen bg-background text-foreground flex-col lg:flex-row relative">
 
             {/* Mobile Header */}
             <header className="lg:hidden flex items-center justify-between p-4 glass border-b border-white/5 z-30">
@@ -139,12 +141,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </AnimatePresence>
 
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:flex w-64 glass border-r border-white/5 flex-col pt-6 z-20">
+            <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-64 glass border-r border-white/5 flex-col pt-6 z-20">
                 <SidebarContent />
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 relative overflow-y-auto overflow-x-hidden">
+            <main className="flex-1 lg:pl-64 relative overflow-x-hidden">
                 <div className="p-4 lg:p-8 relative z-10 min-h-full">
                     {children}
                 </div>

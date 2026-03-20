@@ -13,6 +13,8 @@ export const metadata: Metadata = {
 
 import { PageProgress } from "@/components/ui/page-progress";
 import { Suspense } from "react";
+import { CustomCursor } from "@/components/ui/custom-cursor";
+import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 
 export default function RootLayout({
   children,
@@ -31,7 +33,10 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <PageProgress />
           </Suspense>
-          {children}
+          <SmoothScrollProvider>
+            <CustomCursor />
+            {children}
+          </SmoothScrollProvider>
           <Toaster />
         </ThemeProvider>
       </body>

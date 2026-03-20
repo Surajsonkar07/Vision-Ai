@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import Spline from '@splinetool/react-spline';
 
 const EyeCanvas = dynamic(() => import("@/components/eye-canvas").then((mod) => mod.EyeCanvas), {
   ssr: false,
@@ -9,11 +10,15 @@ const EyeCanvas = dynamic(() => import("@/components/eye-canvas").then((mod) => 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ScanLine, Cpu, Target, Zap, Activity } from "lucide-react";
+import { TiltWrapper } from "@/components/ui/tilt-wrapper";
 
 export default function Home() {
   return (
-    <main className="relative min-h-screen bg-[#040406] selection:bg-primary/30 text-white font-sans scroll-smooth">
+    <main className="relative min-h-screen bg-[#040406] selection:bg-primary/30 text-white font-sans">
       {/* Dynamic Background */}
+      <div className="fixed inset-0 z-[-1] pointer-events-none opacity-30 mix-blend-screen">
+        <Spline scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode" />
+      </div>
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-grid opacity-20 animate-slow-fade"></div>
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
@@ -108,11 +113,13 @@ export default function Home() {
               { label: "Latency", val: "< 15ms" },
               { label: "Classes", val: "80+" }
             ].map((stat, i) => (
-              <div key={i} className="glass-card p-4 rounded-2xl border-white/5 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="text-2xl font-black text-white mb-1 tracking-tighter">{stat.val}</div>
-                <div className="text-[9px] uppercase tracking-widest text-gray-500 font-bold font-mono">{stat.label}</div>
-              </div>
+              <TiltWrapper key={i}>
+                <div className="glass-card p-4 rounded-2xl border-white/5 relative overflow-hidden group h-full">
+                  <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="text-2xl font-black text-white mb-1 tracking-tighter">{stat.val}</div>
+                  <div className="text-[9px] uppercase tracking-widest text-gray-500 font-bold font-mono">{stat.label}</div>
+                </div>
+              </TiltWrapper>
             ))}
           </motion.div>
         </div>
@@ -174,13 +181,17 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.2 }}
-                className="glass-card p-10 rounded-[2rem] border-white/5 hover:border-white/10 transition-all group hover:-translate-y-2"
+                className="h-full"
               >
-                <div className={`p-4 rounded-2xl bg-${feature.color}/10 border border-${feature.color}/20 mb-8 inline-block group-hover:scale-110 transition-transform`}>
-                  {feature.icon}
-                </div>
-                <h3 className="text-2xl font-bold mb-4 tracking-tight">{feature.title}</h3>
-                <p className="text-gray-400 leading-relaxed font-light">{feature.desc}</p>
+                <TiltWrapper className="h-full">
+                  <div className="glass-card p-10 rounded-[2rem] border-white/5 hover:border-white/10 transition-all group h-full">
+                    <div className={`p-4 rounded-2xl bg-${feature.color}/10 border border-${feature.color}/20 mb-8 inline-block group-hover:scale-110 transition-transform`}>
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-2xl font-bold mb-4 tracking-tight">{feature.title}</h3>
+                    <p className="text-gray-400 leading-relaxed font-light">{feature.desc}</p>
+                  </div>
+                </TiltWrapper>
               </motion.div>
             ))}
           </div>
@@ -203,15 +214,21 @@ export default function Home() {
             </ul>
           </div>
           <div className="flex-1 grid grid-cols-2 gap-4">
-            <div className="glass-card p-8 rounded-3xl border-white/5 aspect-square flex flex-col items-center justify-center text-center">
-              <Zap className="w-12 h-12 text-primary mb-4" />
-              <div className="text-3xl font-black mb-1">90+</div>
-              <div className="text-[8px] font-mono uppercase tracking-[0.3em] text-gray-500">FPS STREAM</div>
-            </div>
-            <div className="glass-card p-8 rounded-3xl border-white/5 aspect-square flex flex-col items-center justify-center text-center translate-y-8">
-              <Activity className="w-12 h-12 text-secondary mb-4" />
-              <div className="text-3xl font-black mb-1">99%</div>
-              <div className="text-[8px] font-mono uppercase tracking-[0.3em] text-gray-500">RELIABILITY</div>
+            <TiltWrapper>
+              <div className="glass-card p-8 rounded-3xl border-white/5 aspect-square flex flex-col items-center justify-center text-center">
+                <Zap className="w-12 h-12 text-primary mb-4" />
+                <div className="text-3xl font-black mb-1">90+</div>
+                <div className="text-[8px] font-mono uppercase tracking-[0.3em] text-gray-500">FPS STREAM</div>
+              </div>
+            </TiltWrapper>
+            <div className="translate-y-8">
+              <TiltWrapper>
+                <div className="glass-card p-8 rounded-3xl border-white/5 aspect-square flex flex-col items-center justify-center text-center">
+                  <Activity className="w-12 h-12 text-secondary mb-4" />
+                  <div className="text-3xl font-black mb-1">99%</div>
+                  <div className="text-[8px] font-mono uppercase tracking-[0.3em] text-gray-500">RELIABILITY</div>
+                </div>
+              </TiltWrapper>
             </div>
           </div>
         </div>
@@ -219,18 +236,22 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="relative z-10 py-32 px-6">
-        <div className="max-w-4xl mx-auto glass-card p-16 rounded-[3rem] border-white/10 text-center relative overflow-hidden group">
-          <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-8 uppercase">Ready to Evolve?</h2>
-          <p className="text-gray-400 text-xl mb-12 max-w-xl mx-auto font-light leading-relaxed">
-            Join the elite teams leveraging spatial intelligence to redefine their operational reality.
-          </p>
-          <Link href="/dashboard">
-            <Button size="lg" className="h-20 px-12 rounded-full grad-primary text-white font-bold text-xl shadow-[0_0_50px_rgba(255,0,128,0.4)] hover:scale-105 transition-all active:scale-95">
-              Launch Console Now
-              <Sparkles className="w-6 h-6 ml-3" />
-            </Button>
-          </Link>
+        <div className="max-w-4xl mx-auto">
+          <TiltWrapper maxTilt={5} className="rounded-[3rem]">
+            <div className="w-full h-full glass-card p-16 rounded-[inherit] border-white/10 text-center relative overflow-hidden group">
+              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-8 uppercase">Ready to Evolve?</h2>
+              <p className="text-gray-400 text-xl mb-12 max-w-xl mx-auto font-light leading-relaxed">
+                Join the elite teams leveraging spatial intelligence to redefine their operational reality.
+              </p>
+              <Link href="/dashboard" className="relative z-10 block">
+                <Button size="lg" className="h-20 px-12 rounded-full grad-primary text-white font-bold text-xl shadow-[0_0_50px_rgba(255,0,128,0.4)] transition-all active:scale-95 hover:scale-100">
+                  Launch Console Now
+                  <Sparkles className="w-6 h-6 ml-3" />
+                </Button>
+              </Link>
+            </div>
+          </TiltWrapper>
         </div>
       </section>
 

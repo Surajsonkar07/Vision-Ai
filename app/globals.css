@@ -159,7 +159,7 @@
   background: theme('colors.primary.DEFAULT');
 }
 
-/* Smooth Scrolling */
+/* Smooth Scrolling handled by Lenis */
 html {
-  scroll-behavior: smooth;
+  /* scroll-behavior: smooth; removed to avoid conflict with Lenis */
 }

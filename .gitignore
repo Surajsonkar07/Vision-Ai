@@ -34,3 +34,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# logs and temporary files
+*.log
+*.txt
+.testfox/
+.gemini/
+.antigravity/
+.agents/
+.agent/
+_agents/
+_agent/
+brain/
+tmp/
+*.tmp

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import Spline from '@splinetool/react-spline';
 
 export default function SignupPage() {
     const [email, setEmail] = useState("");
@@ -18,7 +19,6 @@ export default function SignupPage() {
     const [fullName, setFullName] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
     const supabase = createClient();
@@ -27,7 +27,6 @@ export default function SignupPage() {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        setSuccess(false);
 
         try {
             const { error: signUpError } = await supabase.auth.signUp({
@@ -44,12 +43,8 @@ export default function SignupPage() {
 
             if (signUpError) throw signUpError;
 
-            // Depending on Supabase settings, email confirmation may be required
-            setSuccess(true);
-            setTimeout(() => {
-                router.push("/dashboard");
-                router.refresh();
-            }, 2000);
+            router.push("/dashboard");
+            router.refresh();
 
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : "Failed to register. Please try again.");
@@ -59,8 +54,11 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#040406] flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-[#040406] flex items-center justify-center p-4 relative overflow-x-hidden">
             {/* Background Effects */}
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-40 mix-blend-screen">
+                <Spline scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode" />
+            </div>
             <div className="absolute inset-0 z-0 pointer-events-none">
                 <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] bg-secondary/20 rounded-full blur-[120px] animate-pulse"></div>
                 <div className="absolute bottom-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
@@ -82,17 +80,6 @@ export default function SignupPage() {
                         <CardTitle className="text-3xl font-black tracking-tighter uppercase text-secondary">Sign Up</CardTitle>
                     </CardHeader>
                     <CardContent className="pt-8">
-                        {success ? (
-                            <div className="text-center space-y-4 py-8">
-                                <div className="w-16 h-16 rounded-full bg-secondary/20 text-secondary flex items-center justify-center mx-auto mb-4 border border-secondary/50">
-                                    <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M5 13L9 17L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </div>
-                                <h3 className="font-bold text-white uppercase tracking-widest">Account Created</h3>
-                                <p className="text-xs font-mono text-gray-400">Redirecting to active dashboard...</p>
-                            </div>
-                        ) : (
                             <form onSubmit={handleSignup} className="space-y-6">
                                 {error && (
                                     <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-mono text-center">
@@ -175,7 +162,6 @@ export default function SignupPage() {
                                     )}
                                 </Button>
                             </form>
-                        )}
                     </CardContent>
                 </Card>
 

@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    transpilePackages: ['three'],
+    transpilePackages: ['three', '@splinetool/react-spline', '@splinetool/runtime'],
 };
 
 export default nextConfig;
