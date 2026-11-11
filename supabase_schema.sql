@@ -130,3 +130,15 @@ SELECT cron.schedule(
     VALUES (TIMEZONE('utc'::text, NOW()), 'Auto-generated session log every 6 days')
   $$
 );
+
+-- ==========================================
+-- PRE-SIGNUP VERIFICATION TOKENS TABLE
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.verification_tokens (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL,
+  token text NOT NULL,
+  expires_at timestamptz NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+

@@ -26,8 +26,13 @@ export default function SettingsPage() {
 
     useEffect(() => {
         async function fetchProfile() {
-            setLoading(true);
-            const { data: { user: authUser } } = await supabase.auth.getUser();
+            const { data: { session } } = await supabase.auth.getSession();
+            let authUser = session?.user || null;
+            if (session) {
+                const { data: { user: fetchedUser } } = await supabase.auth.getUser();
+                if (fetchedUser) authUser = fetchedUser;
+            }
+
 
             if (authUser) {
                 const { data: profile } = await supabase

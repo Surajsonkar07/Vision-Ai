@@ -108,11 +108,17 @@ export default function WebcamPage() {
 
         try {
             const supabase = createClient();
-            const { data: userData } = await supabase.auth.getUser();
+            const { data: { session } } = await supabase.auth.getSession();
+            let userId = session?.user?.id;
+            if (session) {
+                const { data: userData } = await supabase.auth.getUser();
+                if (userData?.user?.id) userId = userData.user.id;
+            }
 
-            if (!userData.user?.id) {
+            if (!userId) {
                 throw new Error("You must be logged in to save intelligence.");
             }
+
 
             const { error: dbError } = await supabase.from('detections').insert({
                 file_path: 'webcam_capture',
@@ -120,7 +126,7 @@ export default function WebcamPage() {
                 objects_detected: [{ label: intelligence.object }],
                 accuracy: 0.99,
                 latency: 1.5,
-                user_id: userData.user.id
+                user_id: userId
             });
 
             if (dbError) throw dbError;

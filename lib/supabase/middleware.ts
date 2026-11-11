@@ -29,7 +29,13 @@ export async function updateSession(request: NextRequest) {
         }
     )
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { session } } = await supabase.auth.getSession()
+    let user = session?.user || null
+    if (session) {
+        const { data: { user: authUser } } = await supabase.auth.getUser()
+        if (authUser) user = authUser
+    }
+
 
     // Protected routes logic
     if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {

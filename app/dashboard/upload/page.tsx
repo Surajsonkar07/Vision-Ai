@@ -102,7 +102,13 @@ export default function UploadPage() {
             setAnalysisResult(analysisData);
             setProgress(85);
 
-            // 3. Insert into detections table
+            const { data: { session } } = await supabase.auth.getSession();
+            let currentUserId = session?.user?.id;
+            if (session) {
+                const { data: userData } = await supabase.auth.getUser();
+                if (userData?.user?.id) currentUserId = userData.user.id;
+            }
+
             const { error: dbError } = await supabase
                 .from('detections')
                 .insert({
@@ -111,10 +117,13 @@ export default function UploadPage() {
                     objects_detected: analysisData,
                     accuracy: 0.99,
                     latency: 0.8,
-                    user_id: (await supabase.auth.getUser()).data.user?.id
+                    user_id: currentUserId,
                 });
 
             if (dbError) throw dbError;
+
+
+
 
             setProgress(100);
             setUploadComplete(true);
