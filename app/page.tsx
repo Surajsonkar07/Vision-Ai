@@ -109,7 +109,7 @@ export default function HomePage() {
         {/* HERO */}
         <section className="relative overflow-hidden border-b border-border">
           <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 py-12 sm:px-6 md:py-20 lg:grid-cols-[1.02fr_1fr] lg:gap-14">
-            <div className="animate-rise">
+            <div className="motion-safe:animate-enter">
               <p className="eyebrow">On-device object detection · 80 classes</p>
               <h1 className="mt-5 text-[2.5rem] leading-[1.02] font-bold sm:text-6xl lg:text-[4.1rem]">
                 See what&apos;s in the frame. <span className="text-muted-foreground">Keep the frame.</span>
@@ -147,7 +147,7 @@ export default function HomePage() {
                 ))}
               </dl>
             </div>
-            <div className="animate-rise [animation-delay:80ms]">
+            <div className="motion-safe:animate-enter [animation-delay:80ms]">
               <Viewfinder />
             </div>
           </div>
@@ -219,8 +219,8 @@ export default function HomePage() {
               <p className="eyebrow">03 — Workflows</p>
               <h2 className="mt-3 max-w-2xl text-3xl font-semibold sm:text-4xl">From a quick look to a labelled dataset.</h2>
             </div>
-            <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-md border border-border bg-border md:grid-cols-6">
-              <article className="bg-background p-6 md:col-span-4 md:p-8" data-reveal>
+            <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-md border border-border bg-border md:grid-cols-6" data-reveal>
+              <article className="bg-background p-6 md:col-span-4 md:p-8">
                 <p className="readout text-xs text-primary">LIVE</p>
                 <h3 className="mt-3 text-xl font-semibold">Live camera, laptop or phone</h3>
                 <p className="mt-2 max-w-md text-muted-foreground">
@@ -240,7 +240,7 @@ export default function HomePage() {
                   ))}
                 </div>
               </article>
-              <article className="bg-background p-6 md:col-span-2 md:p-8" data-reveal style={{ ["--reveal-i" as string]: 1 }}>
+              <article className="bg-background p-6 md:col-span-2 md:p-8">
                 <p className="readout text-xs text-primary">UPLOAD</p>
                 <h3 className="mt-3 text-xl font-semibold">Photos &amp; video</h3>
                 <p className="mt-2 text-muted-foreground">
@@ -248,7 +248,7 @@ export default function HomePage() {
                 </p>
                 <p className="readout mt-6 text-xs text-muted-foreground">jpg · png · webp · gif · mp4 · webm</p>
               </article>
-              <article className="bg-background p-6 md:col-span-3 md:p-8" data-reveal>
+              <article className="bg-background p-6 md:col-span-3 md:p-8">
                 <p className="readout text-xs text-primary">EXPORT</p>
                 <h3 className="mt-3 text-xl font-semibold">History you can take with you</h3>
                 <p className="mt-2 text-muted-foreground">
@@ -260,7 +260,7 @@ laptop,0.9412,100.0,178.0,312.0,178.0
 cup,0.8805,404.0,270.0,66.0,86.0`}
                 </pre>
               </article>
-              <article className="bg-background p-6 md:col-span-3 md:p-8" data-reveal style={{ ["--reveal-i" as string]: 1 }}>
+              <article className="bg-background p-6 md:col-span-3 md:p-8">
                 <p className="readout text-xs text-primary">DESCRIBE</p>
                 <h3 className="mt-3 text-xl font-semibold">Ask for an explanation, in your language</h3>
                 <p className="mt-2 text-muted-foreground">

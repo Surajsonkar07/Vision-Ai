@@ -9,6 +9,7 @@ import { classColor } from "@/lib/colors";
 import { useHistory, visible } from "@/lib/history";
 import { useSession } from "@/lib/cloud";
 import { summarise } from "@/lib/stats";
+import { useHydrated } from "@/lib/store";
 import { formatDate, formatMs, pct } from "@/lib/utils";
 
 function greeting(h: number) {
@@ -22,6 +23,7 @@ export function Overview() {
   const { ready, records } = useHistory();
   const { user } = useSession();
   const [now] = useState(() => Date.now());
+  const hydrated = useHydrated();
   const s = summarise(records, 14, now);
   const name = (user?.user_metadata?.full_name as string | undefined)?.split(" ")[0];
   const recent = records.slice(0, 6);
@@ -31,14 +33,14 @@ export function Overview() {
     <div className="space-y-8">
       <div className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="eyebrow" suppressHydrationWarning>
-            {greeting(new Date(now).getHours())}
-            {name ? `, ${name}` : ""}
+          <p className="eyebrow">
+            {hydrated ? greeting(new Date(now).getHours()) : "Console"}
+            {hydrated && name ? `, ${name}` : ""}
           </p>
           <h1 className="mt-2 text-[1.75rem] font-semibold leading-tight sm:text-[2.125rem]">Detection console</h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
             {ready && records.length
-              ? `${s.scans} scans and ${s.objects} objects recorded across ${s.classes} classes.`
+              ? `${s.scans} scan${s.scans === 1 ? "" : "s"} and ${s.objects} object${s.objects === 1 ? "" : "s"} recorded across ${s.classes} class${s.classes === 1 ? "" : "es"}.`
               : "Start with the live camera or drop in a photo. Results stay on this device."}
           </p>
         </div>

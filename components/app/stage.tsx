@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { classColor, LABEL_INK } from "@/lib/colors";
 import type { Detection } from "@/lib/types";
 import { cn, pct } from "@/lib/utils";
@@ -31,10 +32,21 @@ export function Stage({
 }) {
   const w = width || 640;
   const h = height || 480;
-  const unit = Math.max(w, h) / 640;
-  const font = Math.max(11, 12 * unit);
+  const ref = useRef<HTMLDivElement>(null);
+  const [shownWidth, setShownWidth] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setShownWidth(e.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  // Image px per screen px: keeps strokes and labels a constant on-screen size at any zoom.
+  const unit = shownWidth ? w / shownWidth : Math.max(w, h) / 640;
+  const font = 11.5 * unit;
   return (
     <div
+      ref={ref}
       className={cn("frame-corners relative overflow-hidden border border-border bg-surface-2", className)}
       style={{ aspectRatio: `${w} / ${h}` }}
     >
@@ -54,7 +66,7 @@ export function Stage({
           const tw = text.length * font * 0.62 + font;
           const th = font * 1.6;
           const ty = y - th >= 0 ? y - th : y;
-          const t = Math.min(12 * unit, bw / 3, bh / 3);
+          const t = Math.min(10 * unit, bw / 3, bh / 3);
           return (
             <g
               key={`${d.label}-${i}`}
@@ -75,14 +87,14 @@ export function Stage({
                 height={bh}
                 fill={highlight === i ? classColor(d.label, 0.16) : "transparent"}
                 stroke={c}
-                strokeWidth={1.6 * unit}
+                strokeWidth={1.5 * unit}
                 style={{ pointerEvents: onHighlight ? "all" : "none" }}
               />
               <path
                 d={`M${x} ${y + t}V${y}h${t}M${x + bw - t} ${y}h${t}v${t}M${x + bw} ${y + bh - t}v${t}h${-t}M${x + t} ${y + bh}H${x}v${-t}`}
                 fill="none"
                 stroke={c}
-                strokeWidth={3.2 * unit}
+                strokeWidth={3 * unit}
               />
               {showLabels && (
                 <>

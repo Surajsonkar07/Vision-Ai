@@ -83,8 +83,9 @@ cursor. They added ~1 MB of JavaScript to every page and no function.
 
 - Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Radix primitives (`radix-ui`), `motion`, `sonner`,
   `next-themes`, react-hook-form + zod, Serwist.
-- `lib/detector.ts` dynamically imports TensorFlow.js and COCO-SSD only when a page needs them, after first paint
-  (`requestIdleCallback`), and warms the model up on a blank frame.
+- `lib/detector.ts` dynamically imports TensorFlow.js and COCO-SSD only on the detection pages, starting on the
+  user's first interaction (or when a scan is requested), so the model never competes with first paint. It warms
+  the model up on a blank frame so the first real scan is fast.
 - `lib/history.ts` stores records (with a 320 px thumbnail) and full images (≤1280 px JPEG) in two IndexedDB stores.
 - `lib/cloud.ts` handles optional Supabase sync; `proxy.ts` refreshes the auth cookie.
 - `app/sw.ts` is the Serwist service worker. COCO-SSD weights (Google Cloud Storage) are cached cache-first.

@@ -130,19 +130,30 @@ export function useDetector(): DetectorState {
   return useStore(detectorStore, initial);
 }
 
-/** Load once the browser is idle, so the model never competes with first paint. */
+/**
+ * Warm the model up on the user's first interaction with the page (pointer, touch or key),
+ * so the multi-megabyte download and shader compile never compete with first paint.
+ * Pressing "Start camera" or dropping a file also loads it on demand via `detect()`.
+ */
 export function scheduleLoad(base: ModelBase): () => void {
   if (typeof window === "undefined") return () => {};
-  const w = window as Window & {
-    requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
-    cancelIdleCallback?: (id: number) => void;
+  if (model && detectorStore.get().base === base) return () => {};
+  const events = ["pointerdown", "pointermove", "touchstart", "keydown", "wheel"] as const;
+  let idle = 0;
+  const start = () => {
+    cleanup();
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+    const run = () => void loadDetector(base).catch(() => {});
+    if (w.requestIdleCallback) idle = w.requestIdleCallback(run, { timeout: 800 });
+    else idle = window.setTimeout(run, 100);
   };
-  if (w.requestIdleCallback) {
-    const id = w.requestIdleCallback(() => void loadDetector(base).catch(() => {}), { timeout: 1500 });
-    return () => w.cancelIdleCallback?.(id);
-  }
-  const t = window.setTimeout(() => void loadDetector(base).catch(() => {}), 300);
-  return () => window.clearTimeout(t);
+  const cleanup = () => events.forEach((e) => window.removeEventListener(e, start));
+  events.forEach((e) => window.addEventListener(e, start, { passive: true, once: true }));
+  return () => {
+    cleanup();
+    const w = window as Window & { cancelIdleCallback?: (id: number) => void };
+    if (idle) (w.cancelIdleCallback ?? window.clearTimeout)(idle);
+  };
 }
 
 export function modelLabel(base: ModelBase | null): string {

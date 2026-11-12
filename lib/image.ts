@@ -65,10 +65,13 @@ export function drawDetections(
   opts: { scale?: number; showLabels?: boolean; mirrorWidth?: number; highlight?: number } = {},
 ) {
   const { scale = 1, showLabels = true, mirrorWidth, highlight } = opts;
-  const base = Math.max(ctx.canvas.width, ctx.canvas.height);
-  const line = Math.max(1.5, base / 480);
-  const fontPx = Math.max(11, Math.round(base / 64));
-  const tick = Math.max(8, base / 60);
+  // On-screen canvases (object-fit: contain) are sized in screen px; off-screen exports scale with the image.
+  const c = ctx.canvas;
+  const shown = c.clientWidth && c.clientHeight ? Math.min(c.clientWidth / c.width, c.clientHeight / c.height) : 0;
+  const unit = shown ? 1 / shown : Math.max(1, Math.max(c.width, c.height) / 720);
+  const line = 1.5 * unit;
+  const fontPx = Math.round(12 * unit);
+  const tick = 10 * unit;
   ctx.save();
   ctx.font = monoFont(fontPx);
   ctx.textBaseline = "middle";

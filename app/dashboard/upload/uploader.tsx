@@ -263,6 +263,8 @@ export function Uploader() {
             multiple
             className="sr-only"
             id="file-input"
+            aria-label="Choose photos or a video to analyse"
+            tabIndex={-1}
             onChange={(e) => {
               if (e.target.files) addFiles(e.target.files);
               e.target.value = "";

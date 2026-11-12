@@ -35,7 +35,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <ThemeToggle />
         </header>
         <main id="main" className="flex flex-1 items-center justify-center px-4 pb-16 sm:px-8">
-          <div className="w-full max-w-sm motion-safe:animate-rise">{children}</div>
+          <div className="w-full max-w-sm motion-safe:animate-enter">{children}</div>
         </main>
       </div>
       <AuthToaster />

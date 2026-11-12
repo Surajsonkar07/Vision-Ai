@@ -1,9 +1,10 @@
-/**
- * Fixed class-colour ramp. Constant lightness so every label tab can use dark text.
- * Boxes are drawn over photos, so these do not change with the UI theme.
- */
-const HUES = [124, 200, 38, 280, 160, 330, 60, 240, 12, 95];
+import { COCO_ID_BY_NAME } from "./coco";
 
+/**
+ * Class colours: golden-angle hues keyed by COCO category id, so neighbouring classes never share
+ * a colour and a class keeps its colour everywhere. Constant lightness lets every label tab use
+ * dark text. Boxes sit on photos, so these do not change with the UI theme.
+ */
 export function hashLabel(label: string): number {
   let h = 2166136261;
   for (let i = 0; i < label.length; i++) {
@@ -14,12 +15,13 @@ export function hashLabel(label: string): number {
 }
 
 export function classHue(label: string): number {
-  return HUES[hashLabel(label) % HUES.length];
+  const id = COCO_ID_BY_NAME[label] ?? hashLabel(label) % 97;
+  return Math.round((id * 137.508 + 120) % 360);
 }
 
 export function classColor(label: string, alpha = 1): string {
   const h = classHue(label);
-  return alpha === 1 ? `oklch(0.84 0.17 ${h})` : `oklch(0.84 0.17 ${h} / ${alpha})`;
+  return alpha === 1 ? `oklch(0.83 0.16 ${h})` : `oklch(0.83 0.16 ${h} / ${alpha})`;
 }
 
 export const LABEL_INK = "oklch(0.18 0.02 255)";

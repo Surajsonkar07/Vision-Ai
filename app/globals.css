@@ -71,6 +71,7 @@
   --ease-out-quick: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   --animate-rise: rise 220ms var(--ease-out-quick) both;
+  --animate-enter: enter 260ms var(--ease-out-quick) both;
   --animate-lock: lock 240ms var(--ease-out-quick) both;
   --animate-blink: blink 1.4s steps(2, jump-none) infinite;
   --animate-scan: scan 2.6s ease-in-out infinite;
@@ -79,6 +80,11 @@
 
 @keyframes rise {
   from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+/* Entrance for content that may be the LCP element: never starts fully transparent. */
+@keyframes enter {
+  from { opacity: 0.35; transform: translateY(6px); }
   to { opacity: 1; transform: none; }
 }
 @keyframes lock {

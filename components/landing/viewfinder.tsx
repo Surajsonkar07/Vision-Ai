@@ -10,7 +10,7 @@ const BOXES = [
 /** Line-art desk scene with detection overlays. Pure SVG + CSS, so it paints with the HTML. */
 export function Viewfinder() {
   return (
-    <figure className="frame-corners relative overflow-hidden border border-border bg-surface-2">
+    <figure className="dark frame-corners relative overflow-hidden border border-border bg-surface-2 text-foreground">
       <svg viewBox="0 0 600 420" className="block h-auto w-full" role="img" aria-labelledby="vf-title">
         <title id="vf-title">
           A desk scene with a laptop, a potted plant, a cup and a book, each outlined by a labelled detection box.
