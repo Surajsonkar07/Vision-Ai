@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { MotionConfig } from "motion/react";
 import { Toaster } from "sonner";
 import { useTheme } from "next-themes";
 import {
@@ -79,6 +78,8 @@ function AccountBlock() {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const warm = (href: string) => () => router.prefetch(href);
   const { resolvedTheme } = useTheme();
   const { user } = useSession();
 
@@ -94,7 +95,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const current = NAV.find((n) => isActive(pathname, n.href));
 
   return (
-    <MotionConfig reducedMotion="user" transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}>
+    <>
       <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
         {/* Desktop sidebar */}
         <aside className="sticky top-0 hidden h-dvh flex-col border-r border-border bg-surface lg:flex">
@@ -110,6 +111,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Link
                   key={href}
                   href={href}
+                  prefetch={false}
+                  onMouseEnter={warm(href)}
+                  onFocus={warm(href)}
+                  onTouchStart={warm(href)}
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "relative flex h-10 items-center gap-3 rounded-sm px-3 text-sm transition-colors",
@@ -174,6 +179,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={href}
                 href={href}
+                prefetch={false}
+                onMouseEnter={warm(href)}
+                onFocus={warm(href)}
+                onTouchStart={warm(href)}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "relative flex h-16 flex-col items-center justify-center gap-1 text-[0.6875rem] font-medium transition-colors",
@@ -200,6 +209,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           },
         }}
       />
-    </MotionConfig>
+    </>
   );
 }

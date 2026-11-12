@@ -22,18 +22,20 @@ let started = false;
 export function startSession() {
   if (started || typeof window === "undefined") return;
   started = true;
-  const supabase = createClient();
-  if (!supabase) {
-    sessionStore.set({ ready: true, user: null });
-    return;
-  }
-  supabase.auth
-    .getUser()
-    .then(({ data }) => sessionStore.set({ ready: true, user: data.user ?? null }))
-    .catch(() => sessionStore.set({ ready: true, user: null }));
-  supabase.auth.onAuthStateChange((_event, session) => {
-    sessionStore.set({ ready: true, user: session?.user ?? null });
-  });
+  void (async () => {
+    const supabase = await createClient();
+    if (!supabase) {
+      sessionStore.set({ ready: true, user: null });
+      return;
+    }
+    supabase.auth
+      .getUser()
+      .then(({ data }) => sessionStore.set({ ready: true, user: data.user ?? null }))
+      .catch(() => sessionStore.set({ ready: true, user: null }));
+    supabase.auth.onAuthStateChange((_event, session) => {
+      sessionStore.set({ ready: true, user: session?.user ?? null });
+    });
+  })();
 }
 
 export function useSession(): SessionState {
@@ -41,7 +43,7 @@ export function useSession(): SessionState {
 }
 
 export async function signOut() {
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase?.auth.signOut();
   sessionStore.set({ ready: true, user: null });
 }
@@ -59,7 +61,7 @@ interface DetectionRow {
 
 /** Push one scan. Returns true when stored remotely. */
 export async function syncScan(record: ScanRecord): Promise<boolean> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = sessionStore.get().user;
   if (!supabase || !user || record.cloudOnly) return false;
 
@@ -118,7 +120,7 @@ function isDetectionArray(v: unknown): v is Detection[] {
 
 /** Pull rows from the cloud that this device does not have yet. */
 export async function pullCloud(): Promise<number> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = sessionStore.get().user;
   if (!supabase || !user) return 0;
   const { data, error } = await supabase
@@ -169,7 +171,7 @@ export async function pullCloud(): Promise<number> {
 }
 
 export async function deleteCloudScan(id: string): Promise<void> {
-  const supabase = createClient();
+  const supabase = await createClient();
   if (!supabase || !sessionStore.get().user) return;
   await supabase.from("detections").delete().eq("id", id);
 }

@@ -52,7 +52,7 @@ export default function HomePage() {
       <RevealController />
       <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-sm supports-[backdrop-filter]:bg-background/75">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/" aria-label="VisionAI home" className="rounded-sm">
+          <Link prefetch={false} href="/" aria-label="VisionAI home" className="rounded-sm">
             <Logo />
           </Link>
           <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
@@ -73,7 +73,7 @@ export default function HomePage() {
           </nav>
           <div className="flex items-center gap-1">
             <ThemeToggle />
-            <Link
+            <Link prefetch={false}
               href="/dashboard"
               className="hidden h-10 items-center gap-2 rounded-sm bg-foreground px-4 text-sm font-medium text-background transition-opacity hover:opacity-90 sm:inline-flex"
             >
@@ -120,13 +120,13 @@ export default function HomePage() {
                 is needed.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link
+                <Link prefetch={false}
                   href="/dashboard/webcam"
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-primary px-5 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   <Camera className="size-4" aria-hidden /> Start a live scan
                 </Link>
-                <Link
+                <Link prefetch={false}
                   href="/dashboard/upload"
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-sm border border-border-strong bg-surface px-5 font-medium transition-colors hover:bg-surface-2"
                 >
@@ -321,13 +321,13 @@ cup,0.8805,404.0,270.0,66.0,86.0`}
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Link
+              <Link prefetch={false}
                 href="/dashboard"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-[oklch(0.885_0.19_124)] px-5 font-medium text-[oklch(0.2_0.04_130)] transition-opacity hover:opacity-90"
               >
                 Open console <ArrowRight className="size-4" aria-hidden />
               </Link>
-              <Link
+              <Link prefetch={false}
                 href="/signup"
                 className="inline-flex h-12 items-center justify-center rounded-sm border border-background/30 px-5 font-medium transition-colors hover:bg-background/10"
               >
@@ -343,9 +343,9 @@ cup,0.8805,404.0,270.0,66.0,86.0`}
           <Logo />
           <p className="readout text-xs">COCO-SSD · TensorFlow.js · runs on your device</p>
           <nav aria-label="Footer" className="flex gap-4">
-            <Link href="/dashboard" className="hover:text-foreground">Console</Link>
-            <Link href="/login" className="hover:text-foreground">Sign in</Link>
-            <Link href="/dashboard/settings" className="hover:text-foreground">Settings</Link>
+            <Link prefetch={false} href="/dashboard" className="hover:text-foreground">Console</Link>
+            <Link prefetch={false} href="/login" className="hover:text-foreground">Sign in</Link>
+            <Link prefetch={false} href="/dashboard/settings" className="hover:text-foreground">Settings</Link>
           </nav>
         </div>
       </footer>

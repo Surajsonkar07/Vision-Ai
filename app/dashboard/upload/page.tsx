@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/app/bits";
+import { MotionRoot } from "@/components/app/motion-root";
 import { Uploader } from "./uploader";
 
 export const metadata: Metadata = {
@@ -15,7 +16,9 @@ export default function UploadPage() {
         title="Analyse photos and video."
         description="Images are analysed one after another and saved to history. Videos are analysed frame by frame while they play."
       />
-      <Uploader />
+      <MotionRoot>
+        <Uploader />
+      </MotionRoot>
     </div>
   );
 }

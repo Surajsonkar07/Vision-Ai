@@ -76,7 +76,7 @@ export function SignupForm() {
     setError(null);
     try {
       await post("/api/auth/verify-email", { email: details.email, code, password: details.password, fullName: details.fullName });
-      const supabase = createClient();
+      const supabase = await createClient();
       const { error: signInError } = (await supabase?.auth.signInWithPassword({ email: details.email, password: details.password })) ?? {};
       if (signInError) throw signInError;
       toast.success("Account created", { description: "You're signed in. New scans will sync." });
@@ -105,7 +105,7 @@ export function SignupForm() {
           {!supabaseConfigured && (
             <p className="mt-6 rounded-sm border border-border bg-surface-2 p-3 text-sm text-muted-foreground" role="status">
               Accounts are not configured on this server.{" "}
-              <Link href="/dashboard" className="font-medium text-foreground underline underline-offset-4">Use the console as a guest</Link>.
+              <Link prefetch={false} href="/dashboard" className="font-medium text-foreground underline underline-offset-4">Use the console as a guest</Link>.
             </p>
           )}
           <form onSubmit={sendCode} noValidate className="mt-8 space-y-5">
@@ -173,7 +173,7 @@ export function SignupForm() {
 
       <p className="mt-8 border-t border-border pt-6 text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-foreground underline underline-offset-4 hover:decoration-primary">
+        <Link prefetch={false} href="/login" className="font-medium text-foreground underline underline-offset-4 hover:decoration-primary">
           Sign in
         </Link>
       </p>

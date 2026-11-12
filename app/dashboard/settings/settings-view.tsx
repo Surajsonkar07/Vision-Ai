@@ -65,7 +65,7 @@ function ProfileForm({ userId, email, initial }: { userId: string; email: string
   const { errors, isSubmitting, isDirty } = form.formState;
 
   const onSubmit = form.handleSubmit(async (values) => {
-    const supabase = createClient();
+    const supabase = await createClient();
     if (!supabase) return;
     const { error } = await supabase
       .from("profiles")
@@ -113,8 +113,8 @@ function Account() {
 
   useEffect(() => {
     if (!user) return;
-    const supabase = createClient();
     let cancelled = false;
+    void createClient().then((supabase) =>
     supabase
       ?.from("profiles")
       .select("full_name, username")
@@ -129,7 +129,8 @@ function Account() {
             username: data?.username ?? (user.user_metadata?.username as string) ?? "",
           },
         });
-      });
+      }),
+    );
     return () => {
       cancelled = true;
     };

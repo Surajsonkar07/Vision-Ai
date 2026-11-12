@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/app/bits";
+import { MotionRoot } from "@/components/app/motion-root";
 import { LiveScanner } from "./live-scanner";
 
 export const metadata: Metadata = {
@@ -15,7 +16,9 @@ export default function WebcamPage() {
         title="Point the camera at something."
         description="Boxes update every frame. Capture a moment to keep it in history with its detections."
       />
-      <LiveScanner />
+      <MotionRoot>
+        <LiveScanner />
+      </MotionRoot>
     </div>
   );
 }

@@ -7,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="grid min-h-dvh grid-cols-1 lg:grid-cols-[1fr_minmax(0,32rem)]">
       <aside className="hairline-grid relative hidden flex-col justify-between border-r border-border bg-surface-2 p-10 lg:flex">
-        <Link href="/" aria-label="VisionAI home">
+        <Link prefetch={false} href="/" aria-label="VisionAI home">
           <Logo />
         </Link>
         <div className="max-w-md">
@@ -29,7 +29,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </aside>
       <div className="flex flex-col">
         <header className="flex h-16 items-center justify-between px-4 sm:px-8">
-          <Link href="/" aria-label="VisionAI home" className="lg:invisible">
+          <Link prefetch={false} href="/" aria-label="VisionAI home" className="lg:invisible">
             <Logo />
           </Link>
           <ThemeToggle />

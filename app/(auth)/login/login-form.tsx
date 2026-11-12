@@ -28,7 +28,7 @@ export function LoginForm() {
 
   const onSubmit = form.handleSubmit(async ({ email, password }) => {
     setServerError(null);
-    const supabase = createClient();
+    const supabase = await createClient();
     if (!supabase) return;
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
@@ -49,7 +49,7 @@ export function LoginForm() {
       {!supabaseConfigured && (
         <p className="mt-6 rounded-sm border border-border bg-surface-2 p-3 text-sm text-muted-foreground" role="status">
           Accounts are not configured on this server. You can still{" "}
-          <Link href="/dashboard" className="font-medium text-foreground underline underline-offset-4">use the console as a guest</Link>.
+          <Link prefetch={false} href="/dashboard" className="font-medium text-foreground underline underline-offset-4">use the console as a guest</Link>.
         </p>
       )}
 
@@ -95,13 +95,13 @@ export function LoginForm() {
       <div className="mt-8 flex flex-col gap-2 border-t border-border pt-6 text-sm text-muted-foreground">
         <p>
           New here?{" "}
-          <Link href="/signup" className="font-medium text-foreground underline underline-offset-4 hover:decoration-primary">
+          <Link prefetch={false} href="/signup" className="font-medium text-foreground underline underline-offset-4 hover:decoration-primary">
             Create an account
           </Link>
         </p>
         <p>
           Or{" "}
-          <Link href="/dashboard" className="font-medium text-foreground underline underline-offset-4 hover:decoration-primary">
+          <Link prefetch={false} href="/dashboard" className="font-medium text-foreground underline underline-offset-4 hover:decoration-primary">
             continue as a guest
           </Link>{" "}
           — scans stay on this device.

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/app/bits";
+import { MotionRoot } from "@/components/app/motion-root";
 import { HistoryList } from "./history-list";
 
 export const metadata: Metadata = {
@@ -15,7 +16,9 @@ export default function HistoryPage() {
         title="Scans on this device."
         description="Search by what was detected, open a scan to re-tune its threshold, and export results for spreadsheets or training data."
       />
-      <HistoryList />
+      <MotionRoot>
+        <HistoryList />
+      </MotionRoot>
     </div>
   );
 }
