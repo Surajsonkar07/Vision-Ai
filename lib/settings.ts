@@ -11,6 +11,8 @@ export interface Settings {
   mirrorFront: boolean;
   autoSaveUploads: boolean;
   aiLanguage: string;
+  /** COCO class names to show; empty = all classes. */
+  classFilter: string[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -21,6 +23,7 @@ export const DEFAULT_SETTINGS: Settings = {
   mirrorFront: true,
   autoSaveUploads: true,
   aiLanguage: "English",
+  classFilter: [],
 };
 
 const KEY = "visionai.settings.v1";
@@ -72,3 +75,14 @@ export const MODEL_INFO: Record<ModelBase, { name: string; short: string; size: 
     note: "More accurate on small objects. Slower first load.",
   },
 };
+
+/** Keep detections at or above the threshold and, when a class filter is set, only those classes. */
+export function visibleFor<T extends { label: string; score: number }>(
+  detections: T[],
+  threshold: number,
+  classFilter: string[] = [],
+): T[] {
+  if (!classFilter.length) return detections.filter((d) => d.score >= threshold);
+  const allow = new Set(classFilter);
+  return detections.filter((d) => d.score >= threshold && allow.has(d.label));
+}

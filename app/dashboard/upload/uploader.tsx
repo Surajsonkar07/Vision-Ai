@@ -15,7 +15,8 @@ import { annotatedPng, loadImage, toCanvas } from "@/lib/image";
 import { download, slug } from "@/lib/export";
 import { updateScan } from "@/lib/history";
 import { persistScan } from "@/lib/scan";
-import { updateSettings, useSettings } from "@/lib/settings";
+import { updateSettings, useSettings, visibleFor } from "@/lib/settings";
+import { ClassFilterBadge } from "@/components/app/class-filter";
 import type { AiAnalysis, Detection, ScanRecord } from "@/lib/types";
 import { cn, formatBytes, formatMs, uid } from "@/lib/utils";
 import { VideoAnalyzer } from "./video-analyzer";
@@ -177,7 +178,7 @@ export function Uploader() {
   };
 
   const current = items.find((i) => i.id === selected) ?? null;
-  const shown = current ? current.detections.filter((d) => d.score >= settings.threshold) : [];
+  const shown = current ? visibleFor(current.detections, settings.threshold, settings.classFilter) : [];
 
   const recordFor = (item: Item): ScanRecord =>
     item.saved
@@ -227,6 +228,7 @@ export function Uploader() {
 
   return (
     <div className="space-y-6">
+      <ClassFilterBadge />
       {/* Dropzone */}
       <div
         onDragOver={(e) => {
@@ -326,7 +328,7 @@ export function Uploader() {
             <ul className="flex gap-2 overflow-x-auto pb-1" aria-label="Uploaded images">
               <AnimatePresence initial={false}>
                 {items.map((it) => {
-                  const n = it.detections.filter((d) => d.score >= settings.threshold).length;
+                  const n = visibleFor(it.detections, settings.threshold, settings.classFilter).length;
                   return (
                     <motion.li
                       key={it.id}

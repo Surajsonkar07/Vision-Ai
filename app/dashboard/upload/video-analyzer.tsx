@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { detect, useDetector } from "@/lib/detector";
 import { drawDetections, toCanvas } from "@/lib/image";
 import { persistScan } from "@/lib/scan";
-import { useSettings } from "@/lib/settings";
+import { useSettings, visibleFor } from "@/lib/settings";
 import type { Detection } from "@/lib/types";
 import { formatBytes, formatMs } from "@/lib/utils";
 
@@ -41,7 +41,7 @@ export function VideoAnalyzer({ file, url, onClose }: { file: File; url: string;
     }
     const ctx = c.getContext("2d")!;
     ctx.clearRect(0, 0, c.width, c.height);
-    const shown = detections.filter((d) => d.score >= s.threshold);
+    const shown = visibleFor(detections, s.threshold, s.classFilter);
     drawDetections(ctx, shown, { showLabels: s.showLabels });
     setReadout({ count: shown.length, latency: latencyMs });
   }, []);
@@ -81,8 +81,8 @@ export function VideoAnalyzer({ file, url, onClose }: { file: File; url: string;
     if (!c || !c.width) return;
     const ctx = c.getContext("2d")!;
     ctx.clearRect(0, 0, c.width, c.height);
-    drawDetections(ctx, rawRef.current.filter((d) => d.score >= settings.threshold), { showLabels: settings.showLabels });
-  }, [settings.threshold, settings.showLabels]);
+    drawDetections(ctx, visibleFor(rawRef.current, settings.threshold, settings.classFilter), { showLabels: settings.showLabels });
+  }, [settings.threshold, settings.showLabels, settings.classFilter]);
 
   const capture = async () => {
     const v = videoRef.current;

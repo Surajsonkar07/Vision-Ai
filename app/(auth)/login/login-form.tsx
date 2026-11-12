@@ -60,7 +60,12 @@ export function LoginForm() {
           <FieldError id="email-err">{errors.email?.message}</FieldError>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <div className="flex items-baseline justify-between">
+            <Label htmlFor="password">Password</Label>
+            <Link prefetch={false} href="/forgot-password" className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           <div className="relative">
             <Input
               id="password"

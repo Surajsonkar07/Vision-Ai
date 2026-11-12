@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { clientIp, rateLimit, tooMany } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -54,6 +55,9 @@ export async function POST(req: Request) {
       { status: 503 },
     );
   }
+
+  const limit = rateLimit(`analyze:${clientIp(req)}`, 20, 10 * 60_000);
+  if (!limit.ok) return tooMany(limit.retryAfter, "Too many AI requests. Try again in a few minutes.");
 
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {

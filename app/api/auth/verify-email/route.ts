@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailToUuid } from "@/lib/auth-utils";
 import { z } from "zod";
+import { rateLimit, tooMany } from "@/lib/rate-limit";
 
 const Body = z.object({
   email: z.string().trim().toLowerCase().email(),
@@ -20,6 +21,9 @@ export async function POST(request: Request) {
       );
     }
     const { email: cleanEmail, code, password, fullName } = parsed.data;
+
+    const attempts = rateLimit(`verify:${cleanEmail}`, 10, 15 * 60_000);
+    if (!attempts.ok) return tooMany(attempts.retryAfter, "Too many attempts. Request a new code in a few minutes.");
     const userId = emailToUuid(cleanEmail);
     const supabaseAdmin = createAdminClient();
 

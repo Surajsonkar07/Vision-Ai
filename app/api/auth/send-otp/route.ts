@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailToUuid } from "@/lib/auth-utils";
+import { clientIp, rateLimit, tooMany } from "@/lib/rate-limit";
 
 const Body = z.object({
   email: z.string().trim().toLowerCase().email("A valid email address is required."),
@@ -16,6 +17,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid request." }, { status: 400 });
     }
     const { email: cleanEmail, fullName } = parsed.data;
+
+    const perIp = rateLimit(`otp-ip:${clientIp(request)}`, 10, 60 * 60_000);
+    if (!perIp.ok) return tooMany(perIp.retryAfter, "Too many sign-up attempts from this network. Try again later.");
+    const perEmail = rateLimit(`otp-email:${cleanEmail}`, 3, 10 * 60_000);
+    if (!perEmail.ok) return tooMany(perEmail.retryAfter, "Too many codes requested for this e-mail. Wait a few minutes and try again.");
     const supabaseAdmin = createAdminClient();
 
     // 1. Check if email belongs to an already registered user in Supabase (auth.users / profiles)

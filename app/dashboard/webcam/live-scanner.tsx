@@ -12,7 +12,8 @@ import { classColor } from "@/lib/colors";
 import { detect, scheduleLoad, useDetector } from "@/lib/detector";
 import { drawDetections, toCanvas } from "@/lib/image";
 import { persistScan } from "@/lib/scan";
-import { updateSettings, useSettings } from "@/lib/settings";
+import { updateSettings, useSettings, visibleFor } from "@/lib/settings";
+import { ClassFilterBadge } from "@/components/app/class-filter";
 import type { AiAnalysis, Detection, ScanRecord } from "@/lib/types";
 import { cn, formatMs, pct } from "@/lib/utils";
 
@@ -104,7 +105,7 @@ export function LiveScanner() {
         ctx.clearRect(0, 0, c.width, c.height);
         drawDetections(
           ctx,
-          detections.filter((d) => d.score >= s.threshold),
+          visibleFor(detections, s.threshold, s.classFilter),
           { showLabels: s.showLabels, mirrorWidth: mirroredRef.current ? c.width : undefined },
         );
         const now = performance.now();
@@ -177,7 +178,7 @@ export function LiveScanner() {
       setLive({
         fps: statsRef.current.fps,
         latency: statsRef.current.latency,
-        detections: rawRef.current.filter((d) => d.score >= s.threshold).sort((a, b) => b.score - a.score),
+        detections: visibleFor(rawRef.current, s.threshold, s.classFilter).sort((a, b) => b.score - a.score),
       });
     }, 250);
     return () => window.clearInterval(id);
@@ -259,6 +260,7 @@ export function LiveScanner() {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_21rem]">
       <div className="min-w-0 space-y-3">
+        <ClassFilterBadge />
         {/* Viewfinder */}
         <div className="frame-corners relative aspect-[3/4] w-full overflow-hidden border border-border bg-[oklch(0.13_0.008_255)] sm:aspect-video">
           <video

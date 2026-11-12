@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { FieldError, Input, Label, Select, Slider, Switch } from "@/components/ui/form-controls";
 import { ThemeSegmented } from "@/components/theme-toggle";
+import { ClassFilterPicker } from "@/components/app/class-filter";
 import { AI_LANGUAGES } from "@/lib/coco";
 import { signOut, useSession } from "@/lib/cloud";
 import { loadDetector, useDetector } from "@/lib/detector";
@@ -221,6 +222,13 @@ export function SettingsView() {
         <Row title="Save uploads automatically" hint="Off: review each result and save it yourself." htmlFor="autosave">
           <Switch id="autosave" checked={s.autoSaveUploads} onCheckedChange={(v) => updateSettings({ autoSaveUploads: v })} />
         </Row>
+        <div id="class-filter" className="scroll-mt-24 py-5">
+          <p className="text-sm font-medium">Classes to detect</p>
+          <p className="mb-4 mt-1 text-sm text-muted-foreground">
+            Show only the classes you care about on live scan and uploads. Saved scans still keep everything.
+          </p>
+          <ClassFilterPicker />
+        </div>
         <Row title="Reset detection settings">
           <Button variant="secondary" onClick={() => (updateSettings({ ...DEFAULT_SETTINGS, aiLanguage: s.aiLanguage }), toast.success("Defaults restored"))}>
             Restore defaults
