@@ -1,292 +1,354 @@
-"use client";
-
-import { motion } from "framer-motion";
-import dynamic from "next/dynamic";
-import Spline from '@splinetool/react-spline';
-
-const EyeCanvas = dynamic(() => import("@/components/eye-canvas").then((mod) => mod.EyeCanvas), {
-  ssr: false,
-});
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Sparkles, ScanLine, Cpu, Target, Zap, Activity } from "lucide-react";
-import { TiltWrapper } from "@/components/ui/tilt-wrapper";
+import { ArrowRight, Camera, ImageUp, Menu } from "lucide-react";
+import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { RevealController } from "@/components/reveal";
+import { Viewfinder } from "@/components/landing/viewfinder";
+import { COCO_GROUPS } from "@/lib/coco";
+import { classColor } from "@/lib/colors";
 
-export default function Home() {
+const PIPELINE = [
+  {
+    step: "Capture",
+    detail: "A frame from your camera, a photo or a paused video. Phones use the rear camera by default.",
+    meta: "getUserMedia · File API",
+  },
+  {
+    step: "Tensor",
+    detail: "Pixels are copied to the GPU and resized to the network's 300 × 300 input.",
+    meta: "TensorFlow.js · WebGL",
+  },
+  {
+    step: "Infer",
+    detail: "A single-shot detector predicts boxes and class scores for all 80 COCO classes in one pass.",
+    meta: "SSD · MobileNet v2",
+  },
+  {
+    step: "Filter",
+    detail: "Overlapping boxes are merged by non-max suppression; anything under your threshold is dropped.",
+    meta: "NMS · score ≥ threshold",
+  },
+  {
+    step: "Record",
+    detail: "Boxes are drawn over the frame, and the scan is saved to on-device history for export.",
+    meta: "IndexedDB · JSON / CSV / COCO",
+  },
+];
+
+const SPECS: [string, string][] = [
+  ["Model", "COCO-SSD — SSDLite MobileNet v2 (default) or SSD MobileNet v2"],
+  ["Classes", "80 everyday categories, from person and car to toothbrush"],
+  ["Runtime", "TensorFlow.js in the browser — WebGL, CPU fallback"],
+  ["Typical latency", "20–60 ms per frame on a recent laptop, 60–150 ms on a phone"],
+  ["Data leaving the device", "None. Frames are never uploaded unless you ask AI to describe one"],
+  ["Offline", "Yes, once the model has been fetched — installable as an app"],
+  ["Output", "Label, confidence and [x, y, width, height] per object"],
+  ["Export", "VisionAI JSON, CSV per detection, COCO annotations, annotated PNG"],
+];
+
+export default function HomePage() {
   return (
-    <main className="relative min-h-screen bg-[#040406] selection:bg-primary/30 text-white font-sans">
-      {/* Dynamic Background */}
-      <div className="fixed inset-0 z-[-1] pointer-events-none opacity-30 mix-blend-screen">
-        <Spline scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode" />
-      </div>
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-grid opacity-20 animate-slow-fade"></div>
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
-        <div className="absolute bottom-[20%] right-[-10%] w-[40%] h-[40%] bg-secondary/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 glass border-b border-white/5 py-4 px-8 flex justify-between items-center">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-2xl font-bold flex items-center gap-2 group cursor-pointer"
-        >
-          <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 group-hover:neon-border transition-all">
-            <ScanLine className="text-primary w-5 h-5" />
-          </div>
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-secondary font-mono tracking-tighter text-xl">
-            VISION.AI
-          </span>
-        </motion.div>
-
-        <div className="hidden md:flex items-center gap-8 text-[10px] font-mono tracking-widest uppercase text-gray-400">
-          <a href="#features" className="hover:text-primary transition-colors">Features</a>
-          <a href="#tech" className="hover:text-secondary transition-colors">Architecture</a>
-          <a href="#docs" className="hover:text-accent transition-colors">Docs</a>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-6"
-        >
-          <Link href="/login" className="text-sm font-medium hover:text-primary transition-colors">Login</Link>
-          <Link href="/dashboard">
-            <Button className="grad-primary hover:opacity-90 text-white rounded-full px-6 shadow-[0_0_20px_rgba(255,0,128,0.4)] border-0 transition-all hover:scale-105 active:scale-95">
-              Launch Console
-              <Sparkles className="w-4 h-4 ml-2" />
-            </Button>
+    <>
+      <RevealController />
+      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-sm supports-[backdrop-filter]:bg-background/75">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+          <Link href="/" aria-label="VisionAI home" className="rounded-sm">
+            <Logo />
           </Link>
-        </motion.div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="relative z-10 flex flex-col lg:flex-row items-center justify-center min-h-[90vh] px-6 lg:px-24 pt-32 pb-20">
-        {/* Left Content */}
-        <div className="flex-1 text-left z-20 max-w-2xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass border border-primary/20 mb-8 group cursor-pointer hover:bg-primary/5 transition-all">
-              <div className="w-2 h-2 rounded-full bg-secondary animate-pulse shadow-[0_0_8px_#00ffff]"></div>
-              <span className="text-[10px] font-mono text-secondary tracking-[0.2em] uppercase font-bold">Neural Engine v8.0 Active</span>
-            </div>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-8 leading-[1] tracking-tighter">
-              OBSERVE.<br />
-              <span className="neon-text text-primary">DETECT.</span><br />
-              <span className="neon-text-cyan text-secondary">ANALYZE.</span>
-            </h1>
-
-            <p className="text-gray-400 text-lg sm:text-xl font-light mb-12 max-w-lg leading-relaxed">
-              Experience the pinnacle of <span className="text-white font-medium">real-time spatial intelligence</span>.
-              Our neural-accelerated engine delivers sub-15ms inference directly in your cloud environment.
-            </p>
-
-            <div className="flex flex-wrap gap-6 mb-16">
-              <Link href="/dashboard">
-                <Button size="lg" className="h-16 px-10 rounded-2xl grad-cyber text-white font-bold text-lg shadow-[0_0_40px_rgba(0,183,255,0.3)] hover:scale-105 transition-all active:scale-95">
-                  Initialize Scan
-                  <ScanLine className="w-6 h-6 ml-3" />
-                </Button>
-              </Link>
-              <Button size="lg" variant="outline" className="h-16 px-10 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-medium backdrop-blur-md">
-                Documentation
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* Stats Bar */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="grid grid-cols-3 gap-4 lg:gap-8 max-w-xl"
-          >
+          <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
             {[
-              { label: "Accuracy", val: "99.8%" },
-              { label: "Latency", val: "< 15ms" },
-              { label: "Classes", val: "80+" }
-            ].map((stat, i) => (
-              <TiltWrapper key={i}>
-                <div className="glass-card p-4 rounded-2xl border-white/5 relative overflow-hidden group h-full">
-                  <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="text-2xl font-black text-white mb-1 tracking-tighter">{stat.val}</div>
-                  <div className="text-[9px] uppercase tracking-widest text-gray-500 font-bold font-mono">{stat.label}</div>
-                </div>
-              </TiltWrapper>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Right 3D Eye */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-          className="flex-1 h-[40vh] lg:h-[70vh] w-full relative group mt-12 lg:mt-0"
-        >
-          <div className="absolute inset-0 bg-primary/10 rounded-full blur-[120px] group-hover:bg-primary/20 transition-all duration-1000"></div>
-          <div className="absolute inset-0 bg-secondary/10 rounded-full blur-[80px] translate-x-10 translate-y-10 group-hover:bg-secondary/20 transition-all duration-1000"></div>
-          <EyeCanvas />
-
-          {/* Glass Overlay Elements */}
-          <div className="absolute top-1/4 right-10 glass p-4 rounded-xl border-white/10 animate-bounce" style={{ animationDuration: '4s' }}>
-            <Cpu className="text-primary w-6 h-6" />
-          </div>
-          <div className="absolute bottom-1/4 left-10 glass p-4 rounded-xl border-white/10 animate-bounce" style={{ animationDuration: '5s', animationDelay: '1s' }}>
-            <Sparkles className="text-secondary w-6 h-6" />
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="relative z-10 py-32 px-6 lg:px-24 bg-gradient-to-b from-transparent to-black/40">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-4 uppercase">Advanced Capabilities</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto"></div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Temporal Analysis",
-                desc: "Process multi-frame sequences to understand object velocity and trajectory with pixel-perfect precision.",
-                icon: <Activity className="w-8 h-8 text-primary" />,
-                color: "primary"
-              },
-              {
-                title: "Neural Edge Tech",
-                desc: "Distributed inference architecture allows for heavy computation directly at the source with zero lag.",
-                icon: <Cpu className="w-8 h-8 text-secondary" />,
-                color: "secondary"
-              },
-              {
-                title: "Global Mesh",
-                desc: "Sync detections across multiple sites and cameras into a single, unified spatial data stream.",
-                icon: <Target className="w-8 h-8 text-accent" />,
-                color: "accent"
-              }
-            ].map((feature, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.2 }}
-                className="h-full"
+              ["#pipeline", "How it works"],
+              ["#specs", "Specs"],
+              ["#workflows", "Workflows"],
+              ["#classes", "Classes"],
+            ].map(([href, label]) => (
+              <a
+                key={href}
+                href={href}
+                className="rounded-sm px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                <TiltWrapper className="h-full">
-                  <div className="glass-card p-10 rounded-[2rem] border-white/5 hover:border-white/10 transition-all group h-full">
-                    <div className={`p-4 rounded-2xl bg-${feature.color}/10 border border-${feature.color}/20 mb-8 inline-block group-hover:scale-110 transition-transform`}>
-                      {feature.icon}
-                    </div>
-                    <h3 className="text-2xl font-bold mb-4 tracking-tight">{feature.title}</h3>
-                    <p className="text-gray-400 leading-relaxed font-light">{feature.desc}</p>
-                  </div>
-                </TiltWrapper>
-              </motion.div>
+                {label}
+              </a>
             ))}
+          </nav>
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <Link
+              href="/dashboard"
+              className="hidden h-10 items-center gap-2 rounded-sm bg-foreground px-4 text-sm font-medium text-background transition-opacity hover:opacity-90 sm:inline-flex"
+            >
+              Open console
+            </Link>
+            <details className="group relative md:hidden">
+              <summary
+                aria-label="Menu"
+                className="inline-flex size-11 cursor-pointer list-none items-center justify-center rounded-sm text-muted-foreground hover:bg-surface-2 [&::-webkit-details-marker]:hidden"
+              >
+                <Menu className="size-5" />
+              </summary>
+              <div className="absolute right-0 top-12 w-56 rounded-md border border-border bg-surface p-1.5 shadow-pop">
+                {[
+                  ["#pipeline", "How it works"],
+                  ["#specs", "Specs"],
+                  ["#workflows", "Workflows"],
+                  ["#classes", "Classes"],
+                  ["/dashboard", "Open console"],
+                  ["/login", "Sign in"],
+                ].map(([href, label]) => (
+                  <a key={href} href={href} className="flex h-11 items-center rounded-sm px-3 text-sm hover:bg-surface-2">
+                    {label}
+                  </a>
+                ))}
+              </div>
+            </details>
           </div>
         </div>
-      </section>
+      </header>
 
-      {/* Tech Stack Section */}
-      <section id="tech" className="relative z-10 py-32 px-6 lg:px-24">
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-20">
-          <div className="flex-1 space-y-8">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter uppercase leading-[1.1]">Built for the <br /><span className="text-secondary">Next Dimension</span></h2>
-            <p className="text-gray-400 text-lg leading-relaxed font-light">
-              Our stack combines the cutting-edge performance of YOLOv8 for detection and the blazing speed of FastAPI backend architectures.
-            </p>
-            <ul className="space-y-4 font-mono text-[10px] tracking-[0.2em] text-gray-500 uppercase">
-              <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_#ff0080]"></div> YOLOv8 Optimized Kernels</li>
-              <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_8px_#00ffff]"></div> FastAPI High-Concurrency Layer</li>
-              <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_#7000ff]"></div> Supabase Real-time Storage</li>
-              <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_#ffffff]"></div> Next.js 14 Spatial UI</li>
-            </ul>
-          </div>
-          <div className="flex-1 grid grid-cols-2 gap-4">
-            <TiltWrapper>
-              <div className="glass-card p-8 rounded-3xl border-white/5 aspect-square flex flex-col items-center justify-center text-center">
-                <Zap className="w-12 h-12 text-primary mb-4" />
-                <div className="text-3xl font-black mb-1">90+</div>
-                <div className="text-[8px] font-mono uppercase tracking-[0.3em] text-gray-500">FPS STREAM</div>
+      <main id="main">
+        {/* HERO */}
+        <section className="relative overflow-hidden border-b border-border">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 py-12 sm:px-6 md:py-20 lg:grid-cols-[1.02fr_1fr] lg:gap-14">
+            <div className="animate-rise">
+              <p className="eyebrow">On-device object detection · 80 classes</p>
+              <h1 className="mt-5 text-[2.5rem] leading-[1.02] font-bold sm:text-6xl lg:text-[4.1rem]">
+                See what&apos;s in the frame. <span className="text-muted-foreground">Keep the frame.</span>
+              </h1>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+                VisionAI runs a neural detector inside your browser. Point a phone camera or drop in a photo and get
+                labelled bounding boxes with confidence scores in milliseconds — nothing is uploaded, and no API key
+                is needed.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/dashboard/webcam"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-primary px-5 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  <Camera className="size-4" aria-hidden /> Start a live scan
+                </Link>
+                <Link
+                  href="/dashboard/upload"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-sm border border-border-strong bg-surface px-5 font-medium transition-colors hover:bg-surface-2"
+                >
+                  <ImageUp className="size-4" aria-hidden /> Analyse a photo
+                </Link>
               </div>
-            </TiltWrapper>
-            <div className="translate-y-8">
-              <TiltWrapper>
-                <div className="glass-card p-8 rounded-3xl border-white/5 aspect-square flex flex-col items-center justify-center text-center">
-                  <Activity className="w-12 h-12 text-secondary mb-4" />
-                  <div className="text-3xl font-black mb-1">99%</div>
-                  <div className="text-[8px] font-mono uppercase tracking-[0.3em] text-gray-500">RELIABILITY</div>
-                </div>
-              </TiltWrapper>
+              <dl className="mt-10 grid max-w-lg grid-cols-3 border-y border-border py-4">
+                {[
+                  ["80", "object classes"],
+                  ["0", "bytes uploaded"],
+                  ["~30 ms", "per frame"],
+                ].map(([v, l]) => (
+                  <div key={l} className="border-l border-border pl-3 first:border-l-0 first:pl-0">
+                    <dt className="sr-only">{l}</dt>
+                    <dd className="font-display text-2xl font-semibold [font-stretch:112%] sm:text-[1.75rem]">{v}</dd>
+                    <dd className="mt-0.5 text-xs text-muted-foreground sm:text-sm">{l}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+            <div className="animate-rise [animation-delay:80ms]">
+              <Viewfinder />
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA Section */}
-      <section className="relative z-10 py-32 px-6">
-        <div className="max-w-4xl mx-auto">
-          <TiltWrapper maxTilt={5} className="rounded-[3rem]">
-            <div className="w-full h-full glass-card p-16 rounded-[inherit] border-white/10 text-center relative overflow-hidden group">
-              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-              <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-8 uppercase">Ready to Evolve?</h2>
-              <p className="text-gray-400 text-xl mb-12 max-w-xl mx-auto font-light leading-relaxed">
-                Join the elite teams leveraging spatial intelligence to redefine their operational reality.
+        {/* PIPELINE */}
+        <section id="pipeline" className="border-b border-border">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_1.4fr] md:items-end" data-reveal>
+              <div>
+                <p className="eyebrow">01 — How it works</p>
+                <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">Five steps, one device.</h2>
+              </div>
+              <p className="text-muted-foreground md:max-w-lg md:justify-self-end">
+                The whole pipeline runs where the image already is. The browser downloads the model once, caches it, and
+                every frame after that stays on your machine.
               </p>
-              <Link href="/dashboard" className="relative z-10 block">
-                <Button size="lg" className="h-20 px-12 rounded-full grad-primary text-white font-bold text-xl shadow-[0_0_50px_rgba(255,0,128,0.4)] transition-all active:scale-95 hover:scale-100">
-                  Launch Console Now
-                  <Sparkles className="w-6 h-6 ml-3" />
-                </Button>
+            </div>
+            <ol className="mt-12 grid grid-cols-1 border-t border-border md:grid-cols-5">
+              {PIPELINE.map((p, i) => (
+                <li
+                  key={p.step}
+                  data-reveal
+                  style={{ ["--reveal-i" as string]: i }}
+                  className="relative grid grid-cols-[3rem_1fr] gap-x-3 border-b border-border py-6 md:block md:border-b-0 md:border-l md:px-5 md:py-8 md:first:border-l-0 md:first:pl-0"
+                >
+                  <span className="readout text-sm text-primary">{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <h3 className="text-lg font-semibold md:mt-6">{p.step}</h3>
+                    <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted-foreground">{p.detail}</p>
+                    <p className="readout mt-4 text-xs text-muted-foreground">{p.meta}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* SPECS */}
+        <section id="specs" className="border-b border-border bg-surface">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-[0.8fr_1.2fr]">
+            <div data-reveal>
+              <p className="eyebrow">02 — Spec sheet</p>
+              <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">Measured, not magic.</h2>
+              <p className="mt-4 max-w-md text-muted-foreground">
+                COCO-SSD is a well-understood, openly licensed detector. It won&apos;t name a dog&apos;s breed, but it will
+                find the dog, the frisbee and the person throwing it — fast enough to keep up with a moving camera.
+              </p>
+              <p className="mt-4 max-w-md text-muted-foreground">
+                Need more than a box? With a server key, <strong className="font-medium text-foreground">Describe with AI</strong>{" "}
+                sends one chosen frame to a vision-language model and returns an explanation in 60 languages.
+              </p>
+            </div>
+            <dl className="divide-y divide-border border-y border-border" data-reveal>
+              {SPECS.map(([k, v]) => (
+                <div key={k} className="grid grid-cols-1 gap-1 py-4 sm:grid-cols-[13rem_1fr] sm:gap-6">
+                  <dt className="readout text-sm text-muted-foreground">{k}</dt>
+                  <dd className="text-[0.9375rem]">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+
+        {/* WORKFLOWS — bento */}
+        <section id="workflows" className="border-b border-border">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+            <div data-reveal>
+              <p className="eyebrow">03 — Workflows</p>
+              <h2 className="mt-3 max-w-2xl text-3xl font-semibold sm:text-4xl">From a quick look to a labelled dataset.</h2>
+            </div>
+            <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-md border border-border bg-border md:grid-cols-6">
+              <article className="bg-background p-6 md:col-span-4 md:p-8" data-reveal>
+                <p className="readout text-xs text-primary">LIVE</p>
+                <h3 className="mt-3 text-xl font-semibold">Live camera, laptop or phone</h3>
+                <p className="mt-2 max-w-md text-muted-foreground">
+                  Boxes follow objects as you move. Switch to the rear camera, pause on a frame, tune the threshold, and
+                  capture any moment to history with one tap.
+                </p>
+                <div className="mt-6 grid grid-cols-3 gap-2 readout text-xs sm:max-w-md">
+                  {[
+                    ["fps", "24.0"],
+                    ["latency", "38 ms"],
+                    ["objects", "3"],
+                  ].map(([k, v]) => (
+                    <div key={k} className="rounded-sm border border-border px-3 py-2">
+                      <div className="text-muted-foreground">{k}</div>
+                      <div className="mt-1 text-base text-foreground">{v}</div>
+                    </div>
+                  ))}
+                </div>
+              </article>
+              <article className="bg-background p-6 md:col-span-2 md:p-8" data-reveal style={{ ["--reveal-i" as string]: 1 }}>
+                <p className="readout text-xs text-primary">UPLOAD</p>
+                <h3 className="mt-3 text-xl font-semibold">Photos &amp; video</h3>
+                <p className="mt-2 text-muted-foreground">
+                  Drop a batch of images, paste from the clipboard, or play a clip and detect frame by frame.
+                </p>
+                <p className="readout mt-6 text-xs text-muted-foreground">jpg · png · webp · gif · mp4 · webm</p>
+              </article>
+              <article className="bg-background p-6 md:col-span-3 md:p-8" data-reveal>
+                <p className="readout text-xs text-primary">EXPORT</p>
+                <h3 className="mt-3 text-xl font-semibold">History you can take with you</h3>
+                <p className="mt-2 text-muted-foreground">
+                  Every scan is kept on this device. Search by label, then export CSV, COCO annotations or annotated PNGs.
+                </p>
+                <pre className="mt-6 overflow-x-auto rounded-sm border border-border bg-surface-2 p-3 readout text-[0.6875rem] leading-relaxed text-muted-foreground sm:text-xs">
+{`label,score,x,y,width,height
+laptop,0.9412,100.0,178.0,312.0,178.0
+cup,0.8805,404.0,270.0,66.0,86.0`}
+                </pre>
+              </article>
+              <article className="bg-background p-6 md:col-span-3 md:p-8" data-reveal style={{ ["--reveal-i" as string]: 1 }}>
+                <p className="readout text-xs text-primary">DESCRIBE</p>
+                <h3 className="mt-3 text-xl font-semibold">Ask for an explanation, in your language</h3>
+                <p className="mt-2 text-muted-foreground">
+                  Optional: send one frame to a vision model for a written description and translation, then have it
+                  read aloud.
+                </p>
+                <ul className="mt-6 flex flex-wrap gap-1.5" aria-label="Example languages">
+                  {["English", "हिन्दी", "Español", "தமிழ்", "日本語", "Français", "বাংলা", "+53"].map((l) => (
+                    <li key={l} className="rounded-xs border border-border px-2 py-1 text-xs text-muted-foreground">
+                      {l}
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        {/* CLASSES */}
+        <section id="classes" className="border-b border-border bg-surface">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-end" data-reveal>
+              <div>
+                <p className="eyebrow">04 — Class index</p>
+                <h2 className="mt-3 text-3xl font-semibold sm:text-4xl">What it can find.</h2>
+              </div>
+              <p className="text-muted-foreground md:justify-self-end md:text-right">
+                The 80 COCO categories. Each class keeps one box colour everywhere in the app.
+              </p>
+            </div>
+            <div className="mt-10 divide-y divide-border border-y border-border">
+              {COCO_GROUPS.map(({ group, classes }) => (
+                <div key={group} className="grid grid-cols-1 gap-3 py-4 sm:grid-cols-[9rem_1fr]" data-reveal>
+                  <p className="readout text-sm text-muted-foreground">
+                    {group} <span className="opacity-60">· {classes.length}</span>
+                  </p>
+                  <ul className="flex flex-wrap gap-1.5">
+                    {classes.map((c) => (
+                      <li key={c} className="inline-flex items-center gap-1.5 rounded-xs border border-border bg-background px-2 py-1 text-sm">
+                        <span className="size-2 rounded-[1px]" style={{ background: classColor(c) }} aria-hidden />
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="bg-foreground text-background">
+          <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-16 sm:px-6 md:flex-row md:items-center md:justify-between md:py-20">
+            <div>
+              <h2 className="text-3xl font-semibold sm:text-4xl">Open the console. Point at something.</h2>
+              <p className="mt-3 max-w-xl opacity-75">
+                No account needed — history stays on this device. Sign in later to sync scans across devices.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/dashboard"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-[oklch(0.885_0.19_124)] px-5 font-medium text-[oklch(0.2_0.04_130)] transition-opacity hover:opacity-90"
+              >
+                Open console <ArrowRight className="size-4" aria-hidden />
+              </Link>
+              <Link
+                href="/signup"
+                className="inline-flex h-12 items-center justify-center rounded-sm border border-background/30 px-5 font-medium transition-colors hover:bg-background/10"
+              >
+                Create an account
               </Link>
             </div>
-          </TiltWrapper>
-        </div>
-      </section>
+          </div>
+        </section>
+      </main>
 
-      {/* Footer */}
-      <footer className="relative z-10 py-20 border-t border-white/5 px-6 lg:px-24 bg-black/60">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="flex items-center gap-3">
-            <ScanLine className="text-primary w-6 h-6" />
-            <span className="text-xl font-black tracking-widest font-mono">VISION.AI</span>
-          </div>
-          <div className="flex gap-12 text-gray-500 text-[10px] font-mono tracking-widest uppercase">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Twitter</a>
-            <a href="#" className="hover:text-white transition-colors">GitHub</a>
-          </div>
-          <div className="text-gray-600 text-[10px] font-mono uppercase tracking-widest">
-            © 2026 NEURAL ORIGIN CORP
-          </div>
+      <footer className="border-t border-border">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-muted-foreground sm:px-6 md:flex-row md:items-center md:justify-between">
+          <Logo />
+          <p className="readout text-xs">COCO-SSD · TensorFlow.js · runs on your device</p>
+          <nav aria-label="Footer" className="flex gap-4">
+            <Link href="/dashboard" className="hover:text-foreground">Console</Link>
+            <Link href="/login" className="hover:text-foreground">Sign in</Link>
+            <Link href="/dashboard/settings" className="hover:text-foreground">Settings</Link>
+          </nav>
         </div>
       </footer>
-
-      {/* HUD Info Labels */}
-      <div className="fixed bottom-8 left-8 z-40 hidden md:block">
-        <div className="flex flex-col gap-2 font-mono text-[10px] text-gray-500 tracking-tighter opacity-50">
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-            SYSTEM CORE: STABLE
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary/50"></span>
-            LATENCY: OPTIMAL
-          </div>
-        </div>
-      </div>
-    </main>
+    </>
   );
 }

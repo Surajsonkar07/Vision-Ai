@@ -142,3 +142,24 @@ CREATE TABLE IF NOT EXISTS public.verification_tokens (
   created_at timestamptz DEFAULT now()
 );
 
+
+-- ==========================================
+-- v1.0 (Next.js 16 rebuild): cloud sync of on-device scans
+-- The client upserts with the scan's own UUID and can delete its rows.
+-- ==========================================
+DROP POLICY IF EXISTS "Users can update their own detections" ON detections;
+CREATE POLICY "Users can update their own detections"
+    ON detections FOR UPDATE
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can delete their own detections" ON detections;
+CREATE POLICY "Users can delete their own detections"
+    ON detections FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- Allow re-uploading (upsert) a scan image to the same path
+DROP POLICY IF EXISTS "Authenticated users can update own uploads" ON storage.objects;
+CREATE POLICY "Authenticated users can update own uploads"
+ON storage.objects FOR UPDATE
+USING ( bucket_id = 'detections' AND auth.role() = 'authenticated' );

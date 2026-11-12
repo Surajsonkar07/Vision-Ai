@@ -1,16 +1,21 @@
+import { randomInt } from "crypto";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailToUuid } from "@/lib/auth-utils";
 
+const Body = z.object({
+  email: z.string().trim().toLowerCase().email("A valid email address is required."),
+  fullName: z.string().trim().max(120).optional(),
+});
+
 export async function POST(request: Request) {
   try {
-    const { email, fullName } = await request.json();
-
-    if (!email || typeof email !== "string" || !email.trim()) {
-      return NextResponse.json({ error: "A valid email address is required." }, { status: 400 });
+    const parsed = Body.safeParse(await request.json().catch(() => null));
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid request." }, { status: 400 });
     }
-
-    const cleanEmail = email.toLowerCase().trim();
+    const { email: cleanEmail, fullName } = parsed.data;
     const supabaseAdmin = createAdminClient();
 
     // 1. Check if email belongs to an already registered user in Supabase (auth.users / profiles)
@@ -36,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     // 2. Generate a 6-digit numeric OTP
-    const token = Math.floor(100000 + Math.random() * 900000).toString();
+    const token = randomInt(100000, 1000000).toString();
     const userId = emailToUuid(cleanEmail);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15-minute expiration
 
@@ -58,9 +63,9 @@ export async function POST(request: Request) {
     // 5. Dispatch the 6-digit code via Mailjet API (v3.1)
     const mailjetApiKey = process.env.MAILJET_API_KEY;
     const mailjetSecretKey = process.env.MAILJET_SECRET_KEY;
-    const senderEmail = process.env.MAILJET_SENDER_EMAIL || "sonkarsuraj447@gmail.com";
+    const senderEmail = process.env.MAILJET_SENDER_EMAIL;
 
-    if (!mailjetApiKey || !mailjetSecretKey) {
+    if (!mailjetApiKey || !mailjetSecretKey || !senderEmail) {
       console.error("Mailjet API credentials missing.");
       return NextResponse.json({ error: "Mailjet API configuration missing." }, { status: 500 });
     }
@@ -91,10 +96,10 @@ export async function POST(request: Request) {
             HTMLPart: `
               <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #040406; color: #ffffff; padding: 40px 20px;">
                 <div style="max-width: 480px; margin: 0 auto; background: #0c0c12; border: 1px solid #1e1e2d; border-radius: 16px; padding: 32px; text-align: center;">
-                  <h2 style="color: #00c3ff; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-top: 0; margin-bottom: 8px;">VISION<span style="color: #ff0080;">.AI</span></h2>
+                  <h2 style="color: #c6f24e; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin-top: 0; margin-bottom: 8px;">VisionAI</h2>
                   <p style="color: #a0a0b0; font-size: 14px; margin-bottom: 24px;">Pre-Signup Verification Code</p>
                   <p style="color: #e0e0e0; font-size: 14px; line-height: 1.5; margin-bottom: 24px;">Please enter the following 6-digit numeric OTP code to verify your email address and complete your signup:</p>
-                  <div style="font-size: 36px; font-weight: 900; letter-spacing: 10px; color: #ffffff; background: #141420; border: 1px solid #00c3ff40; padding: 16px 24px; border-radius: 12px; margin: 0 auto 24px auto; display: inline-block; box-shadow: 0 0 20px rgba(0, 195, 255, 0.2);">
+                  <div style="font-size: 36px; font-weight: 900; letter-spacing: 10px; color: #ffffff; background: #141420; border: 1px solid #c6f24e40; padding: 16px 24px; border-radius: 12px; margin: 0 auto 24px auto; display: inline-block; box-shadow: 0 0 20px rgba(198, 242, 78, 0.15);">
                     ${token}
                   </div>
                   <p style="color: #666680; font-size: 12px; margin: 0;">This code is valid for <strong>15 minutes</strong>. If you did not request this, please ignore this message.</p>

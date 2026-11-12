@@ -1,19 +1,25 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailToUuid } from "@/lib/auth-utils";
+import { z } from "zod";
+
+const Body = z.object({
+  email: z.string().trim().toLowerCase().email(),
+  code: z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code."),
+  password: z.string().min(8, "Password must be at least 8 characters.").max(128),
+  fullName: z.string().trim().max(120).optional(),
+});
 
 export async function POST(request: Request) {
   try {
-    const { email, code, password, fullName } = await request.json();
-
-    if (!email || !code || !password) {
+    const parsed = Body.safeParse(await request.json().catch(() => null));
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Email, OTP verification code, and password are required." },
+        { error: parsed.error.issues[0]?.message ?? "Email, code and password are required." },
         { status: 400 }
       );
     }
-
-    const cleanEmail = email.toLowerCase().trim();
+    const { email: cleanEmail, code, password, fullName } = parsed.data;
     const userId = emailToUuid(cleanEmail);
     const supabaseAdmin = createAdminClient();
 
@@ -22,7 +28,7 @@ export async function POST(request: Request) {
       .from("verification_tokens")
       .select("*")
       .eq("user_id", userId)
-      .eq("token", code.trim())
+      .eq("token", code)
       .maybeSingle();
 
     if (tokenQueryError || !tokenRecord) {

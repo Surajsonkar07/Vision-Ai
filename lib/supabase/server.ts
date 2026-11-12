@@ -1,29 +1,22 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "./config";
 
-export function createClient() {
-    const cookieStore = cookies()
-
-    return createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                getAll() {
-                    return cookieStore.getAll()
-                },
-                setAll(cookiesToSet) {
-                    try {
-                        cookiesToSet.forEach((c) =>
-                            cookieStore.set(c.name, c.value, c.options)
-                        )
-                    } catch {
-                        // The `setAll` method was called from a Server Component.
-                        // This can be ignored if you have middleware refreshing
-                        // user sessions.
-                    }
-                },
-            },
+export async function createClient() {
+  if (!supabaseConfigured) return null;
+  const cookieStore = await cookies();
+  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach((c) => cookieStore.set(c.name, c.value, c.options));
+        } catch {
+          // Called from a Server Component; the proxy refreshes sessions.
         }
-    )
+      },
+    },
+  });
 }

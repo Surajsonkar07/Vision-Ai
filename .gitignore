@@ -48,3 +48,9 @@ _agent/
 brain/
 tmp/
 *.tmp
+
+# serwist output
+public/sw.js
+public/sw.js.map
+public/swe-worker-*.js
+public/swe-worker-*.js.map
