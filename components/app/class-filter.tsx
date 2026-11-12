@@ -6,7 +6,7 @@ import { Filter, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/form-controls";
 import { COCO_GROUPS } from "@/lib/coco";
 import { classColor } from "@/lib/colors";
-import { updateSettings, useSettings } from "@/lib/settings";
+import { settingsStore, updateSettings, useSettings } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 
 /** Settings control: choose which COCO classes are shown during detection. */
@@ -16,8 +16,9 @@ export function ClassFilterPicker() {
   const selected = useMemo(() => new Set(classFilter), [classFilter]);
   const term = q.trim().toLowerCase();
 
+  // Read the latest store value so quick successive clicks never drop a selection.
   const toggle = (name: string) => {
-    const next = new Set(selected);
+    const next = new Set(settingsStore.get().classFilter);
     if (next.has(name)) next.delete(name);
     else next.add(name);
     updateSettings({ classFilter: [...next] });

@@ -116,8 +116,21 @@ try {
   check(/saved/.test(t), "upload result auto-saved to history");
   await shot("upload");
 
-  // 3. Class filter narrows the view.
+  // 3. Class filter narrows the upload view but not saved scans.
   await evaluate(`(() => { const k = "visionai.settings.v1"; const s = JSON.parse(localStorage.getItem(k) || "{}"); s.classFilter = ["kite"]; localStorage.setItem(k, JSON.stringify(s)); })()`);
+  await go("/dashboard/upload", 2500);
+  await evaluate(`(async () => { const b = await (await fetch(${JSON.stringify(SAMPLE)})).blob();
+    const dt = new DataTransfer(); dt.items.add(new File([b], "kites-2.jpg", { type: "image/jpeg" }));
+    const i = document.getElementById("file-input"); i.files = dt.files; i.dispatchEvent(new Event("change", { bubbles: true })); })()`);
+  t = "";
+  for (let i = 0; i < 90 && !/\d+ objects?\b/.test(t); i++) {
+    await sleep(1000);
+    t = await text();
+  }
+  check(/Showing only\s+kite/.test(t), "class filter badge shows on upload");
+  const filtered = Number(/(\d+) objects?\b/.exec(t)?.[1] ?? -1);
+  const table = t.slice(t.indexOf("label"));
+  check(filtered > 0 && filtered < objects && !/\bperson\b/.test(table), `class filter limits upload results to kites (${filtered} of ${objects})`);
   await go("/dashboard/history", 2500);
   const scanId = await evaluate(`document.querySelector('a[href^="/dashboard/history/"]')?.getAttribute("href")`);
   check(Boolean(scanId), "history lists the saved scan");
@@ -131,7 +144,7 @@ try {
   await go("/dashboard/analytics", 2500);
   check(/Class frequency/.test(await text()), "analytics renders charts");
   await go("/dashboard", 2500);
-  check(/1 scan\b/.test(await text()), "overview counts the scan");
+  check(/2 scans\b/.test(await text()), "overview counts both saved scans");
 
   // 5. Live camera starts with Chrome's fake device and the detection loop runs.
   await go("/dashboard/webcam", 2500);
