@@ -355,7 +355,7 @@ export function LiveScanner() {
           <Button variant="secondary" onClick={flip} aria-label="Switch between front and rear camera">
             <SwitchCamera /> <span className="hidden sm:inline">Flip</span>
           </Button>
-          <Button onClick={() => void capture()} disabled={cam !== "on" || detector.status !== "ready"} aria-keyshortcuts="C" className="sm:ml-auto">
+          <Button onClick={() => void capture()} disabled={cam !== "on" || detector.status !== "ready"} aria-keyshortcuts="C" aria-label="Capture frame to history" className="sm:ml-auto">
             <Aperture /> <span className="hidden sm:inline">Capture</span>
           </Button>
         </div>
