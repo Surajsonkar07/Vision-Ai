@@ -101,3 +101,17 @@ cursor. They added ~1 MB of JavaScript to every page and no function.
 | `/dashboard/settings` | Preferences, data, account |
 | `/login`, `/signup` | Accounts (optional) |
 | `/offline` | Service-worker fallback |
+
+## Verification (12 Nov 2026)
+
+- `npm run lint`, `tsc --noEmit` and `npm run build` (webpack + Serwist) pass.
+- Production server checked with headless Chrome at 360, 390, 768 and 1280 px, light and dark:
+  no horizontal overflow on any page, no console errors.
+- Upload → detection → history → detail → analytics flow checked with a sample photo (7 objects: 4 people, 3 kites).
+- Live loop checked with Chrome's fake camera: ~9 fps, ~107 ms per frame on WebGL on this machine.
+- Service worker installs and activates; `/offline` is the navigation fallback.
+- Lighthouse (mobile, simulated throttling, on a heavily loaded dev machine): Accessibility, Best Practices
+  and SEO 100 on `/`, `/dashboard`, `/dashboard/upload`, `/dashboard/webcam`, `/login`. Performance 75–82;
+  the simulated LCP is ~3.2–3.6 s while the observed LCP is ~0.3 s. Re-measure on the deployed site.
+- Not tested here: a real phone camera (needs HTTPS), sign-in/sign-up and cloud sync against the live
+  Supabase project, and Describe with AI against OpenRouter (keys are present but were not exercised).
